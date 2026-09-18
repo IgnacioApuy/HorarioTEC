@@ -1,0 +1,2189 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Horarios TEC</title>
+        <style>
+                :root {
+                        --bg-color: #121212;
+                        --surface-color: #1e1e1e;
+                        --surface-hover: #2c2c2c;
+                        --text-main: #e0e0e0;
+                        --text-muted: #a0a0a0;
+                        --accent: #0066cc;
+                        --danger: #cc3333;
+                        --border: #333;
+                        --req-color: #d97706;
+                        --coreq-color: #0ea5e9;
+                        --abre-color: #22c55e;
+                }
+
+                * {
+                        box-sizing: border-box;
+                        margin: 0;
+                        padding: 0;
+                        font-family: sans-serif;
+                }
+
+                body {
+                        background-color: var(--bg-color);
+                        color: var(--text-main);
+                        height: 100vh;
+                        display: flex;
+                        flex-direction: column;
+                        overflow: hidden;
+                }
+
+                header {
+                        background-color: var(--surface-color);
+                        padding: 10px 20px;
+                        border-bottom: 1px solid var(--border);
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                }
+
+                .upload-section {
+                        display: flex;
+                        gap: 15px;
+                        align-items: center;
+                }
+
+                .btn-section {
+                        display: flex;
+                        gap: 15px;
+                        align-items: center;
+                }
+
+                select,
+                input[type="file"] {
+                        font-size: 12px;
+                        color: var(--text-main);
+                        background-color: var(--bg-color);
+                        border: 1px solid var(--border);
+                        border-radius: 4px;
+                        padding: 4px 8px;
+                }
+
+                button {
+                        background-color: var(--accent);
+                        color: white;
+                        border: none;
+                        padding: 6px 12px;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        font-weight: bold;
+                        font-size: 13px;
+                }
+
+                button.btn-danger {
+                        background-color: var(--danger);
+                }
+
+                #btn-tutorial {
+                        background-color: #0bdef5;
+                        color: #000000;
+                }
+
+                h3 {
+                        line-height: 1.4;
+                        margin-bottom: 5px;
+                }
+
+                p {
+                        line-height: 1.4;
+                        margin-bottom: 5px;
+                }
+
+                a:visited {
+                        color: var(--accent);
+                }
+
+                .main-container {
+                        display: flex;
+                        flex: 1;
+                        overflow: hidden;
+                }
+
+                .left-panel {
+                        width: 350px;
+                        display: flex;
+                        flex-direction: column;
+                        background-color: var(--surface-color);
+                        border-right: 1px solid var(--border);
+                }
+
+                .sede-selector {
+                        padding: 10px 15px;
+                        border-bottom: 1px solid var(--border);
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        background-color: var(--surface-color);
+                }
+
+                .sede-selector label {
+                        font-size: 12px;
+                        color: var(--text-muted);
+                        white-space: nowrap;
+                }
+
+                .sede-selector select {
+                        flex: 1;
+                        background-color: var(--bg-color);
+                        color: var(--text-main);
+                        border: 1px solid var(--border);
+                        border-radius: 4px;
+                        padding: 6px 8px;
+                        font-size: 13px;
+                }
+
+                .sede-selector button {
+                        background-color: transparent;
+                        color: var(--text-main);
+                        border: 1px solid var(--border);
+                        border-radius: 4px;
+                        padding: 6px 8px;
+                        font-size: 12px;
+                        cursor: pointer;
+                }
+
+                .sede-selector button:hover {
+                        border-color: var(--accent);
+                        color: var(--accent);
+                }
+
+                .plan-section {
+                        flex: 1;
+                        background-color: var(--surface-color);
+                        overflow-y: auto;
+                        overflow-x: hidden;
+                        padding: 15px;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 10px;
+                        min-width: 0;
+                }
+
+                .course-box {
+                        background-color: var(--bg-color);
+                        border: 1px solid var(--border);
+                        border-radius: 4px;
+                        padding: 10px;
+                        cursor: pointer;
+                        transition: border-color 0.15s;
+                        position: relative;
+                        min-width: 0;
+                }
+
+                .course-box:hover {
+                        border-color: var(--accent);
+                }
+
+                .course-box.is-req {
+                        border-color: var(--req-color);
+                        box-shadow: 0 0 6px rgba(217, 119, 6, 0.2);
+                }
+
+                .course-box .code {
+                        font-size: 11px;
+                        font-weight: normal;
+                        white-space: nowrap;
+                }
+
+                .course-header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: flex-start;
+                        gap: 8px;
+                }
+
+                .course-title {
+                        font-size: 13px;
+                        font-weight: bold;
+                        margin: 4px 0;
+                        line-height: 1.3;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        display: block;
+                        flex: 1;
+                }
+
+                .course-meta {
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                        flex-shrink: 0;
+                        margin-left: auto;
+                }
+
+                .course-color-controls {
+                        display: flex;
+                        align-items: center;
+                        gap: 4px;
+                }
+
+                .color-picker-toggle {
+                        border: 1px solid var(--border);
+                        border-radius: 4px;
+                        background-color: var(--surface-hover);
+                        color: var(--text-main);
+                        padding: 2px 6px;
+                        font-size: 10px;
+                        cursor: pointer;
+                        line-height: 1;
+                }
+
+                .color-picker-toggle:hover {
+                        border-color: var(--accent);
+                }
+
+                .course-color-picker {
+                        width: 24px;
+                        height: 24px;
+                        padding: 0;
+                        border: 1px solid var(--border);
+                        border-radius: 4px;
+                        background: none;
+                        cursor: pointer;
+                }
+
+                .course-color-picker.hidden {
+                        display: none;
+                }
+
+                .main-container {
+                        overflow-x: hidden;
+                }
+
+                .groups-container,
+                .course-box>div {
+                        min-width: 0;
+                }
+
+                .event-tag {
+                        font-size: 9px;
+                        padding: 1px 5px;
+                        border-radius: 2px;
+                        margin-left: 6px;
+                        display: inline-block;
+                        vertical-align: middle;
+                        line-height: 1;
+                        transform: none;
+                        border: 1px solid currentColor;
+                        background-color: rgba(255, 255, 255, 0.18);
+                        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+                        font-weight: 700;
+                        letter-spacing: 0.02em;
+                        backdrop-filter: blur(2px);
+                }
+
+                .event-tag.semi {
+                        background-color: rgba(104, 79, 4, 0.919);
+                        color: #eab308;
+                        border: 1px solid #eab308;
+                }
+
+                .event-tag.virt {
+                        background-color: rgba(4, 71, 83, 0.862);
+                        color: #06b6d4;
+                        border: 1px solid #06b6d4;
+                }
+
+                .event-tag.asis {
+                        background-color: rgba(13, 85, 39, 0.851);
+                        color: #22c55e;
+                        border: 1px solid #22c55e;
+                }
+
+                .course-box .details {
+                        font-size: 11px;
+                        color: #888;
+                        line-height: 1.4;
+                        margin-top: 4px;
+                }
+
+                .course-box .badge {
+                        font-size: 9px;
+                        padding: 2px 4px;
+                        border-radius: 2px;
+                        margin-left: 2px;
+                        display: inline-block;
+                        border: 1px solid currentColor;
+                        background-color: rgba(255, 255, 255, 0.16);
+                        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+                        font-weight: 700;
+                        letter-spacing: 0.02em;
+                        backdrop-filter: blur(2px);
+                }
+
+                .badge.semi {
+                        background-color: rgba(234, 179, 8, 0.2);
+                        color: #eab308;
+                        border: 1px solid #eab308;
+                }
+
+                .badge.virt {
+                        background-color: rgba(6, 182, 212, 0.2);
+                        color: #06b6d4;
+                        border: 1px solid #06b6d4;
+                }
+
+                .badge.asis {
+                        background-color: rgba(34, 197, 94, 0.2);
+                        color: #22c55e;
+                        border: 1px solid #22c55e;
+                }
+
+                .groups-container {
+                        margin-top: 8px;
+                        display: none;
+                        flex-direction: column;
+                        gap: 6px;
+                }
+
+                .course-box.expanded .groups-container {
+                        display: flex;
+                }
+
+                .group-item {
+                        background-color: var(--surface-hover);
+                        padding: 8px;
+                        border-radius: 3px;
+                        font-size: 12px;
+                        display: flex;
+                        flex-direction: column;
+                        border: 1px solid transparent;
+                }
+
+                .group-item:hover {
+                        background-color: #333;
+                }
+
+                .group-item.selected {
+                        border-color: var(--accent);
+                        background-color: rgba(0, 102, 204, 0.15);
+                }
+
+                .group-header {
+                        display: flex;
+                        justify-content: space-between;
+                        width: 100%;
+                        align-items: center;
+                        margin-bottom: 4px;
+                }
+
+                .schedule-section {
+                        flex: 1;
+                        padding: 15px;
+                        overflow-y: auto;
+                        display: flex;
+                        flex-direction: column;
+                        position: relative;
+                }
+
+                .calendar {
+                        display: flex;
+                        flex: 1;
+                        background-color: var(--surface-color);
+                        border: 1px solid var(--border);
+                        border-radius: 4px;
+                        overflow: hidden;
+                }
+
+                .time-labels {
+                        width: 50px;
+                        background-color: var(--surface-hover);
+                        border-right: 1px solid var(--border);
+                        position: relative;
+                }
+
+                .time-label {
+                        position: absolute;
+                        width: 100%;
+                        text-align: right;
+                        padding-right: 5px;
+                        font-size: 11px;
+                        color: var(--text-muted);
+                        transform: translateY(-50%);
+                }
+
+                .day-column {
+                        flex: 1;
+                        border-right: 1px solid var(--border);
+                        position: relative;
+                        padding-top: 34px;
+                        background-size: 100% calc((100% - 34px) / 15);
+                        background-position: 0 34px;
+                        background-image: linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+                }
+
+                .day-column:last-child {
+                        border-right: none;
+                }
+
+                .day-header {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        text-align: center;
+                        padding: 8px 0;
+                        background-color: var(--surface-hover);
+                        font-weight: bold;
+                        border-bottom: 1px solid var(--border);
+                        font-size: 13px;
+                }
+
+                .event-block {
+                        position: absolute;
+                        left: 2px;
+                        right: 2px;
+                        border-radius: 3px;
+                        padding: 5px;
+                        font-size: 10px;
+                        color: white;
+                        overflow: hidden;
+                        opacity: 0.9;
+                        transition: opacity 0.1s;
+                        display: flex;
+                        flex-direction: column;
+                        cursor: pointer;
+                        min-width: 70px;
+                }
+
+                .event-block-header {
+                        display: block;
+                        position: relative;
+                        padding-right: 42px;
+                }
+
+                .event-block-badges {
+                        position: absolute;
+                        top: 0px;
+                        right: 0px;
+                        display: flex;
+                        gap: 0px;
+                        align-items: flex-start;
+                        justify-content: flex-end;
+                        max-width: calc(100% - 46px);
+                        flex-wrap: wrap;
+                }
+
+                .event-block .e-code {
+                        display: block;
+                        font-weight: bold;
+                        font-size: 10.5px;
+                        line-height: 1.2;
+                        margin: 0;
+                        max-height: 3.6em;
+                        overflow: hidden;
+                        word-break: break-word;
+                }
+
+                .event-block .event-tag {
+                        margin-left: 0;
+                }
+
+                .event-block:hover {
+                        opacity: 1;
+                        z-index: 10;
+                }
+
+                .event-block.conflict {
+                        border: 2px solid #f59e0b;
+                        box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.35);
+                }
+
+                .event-block .conflict-badge {
+                        font-size: 9px;
+                        font-weight: bold;
+                        color: #fde68a;
+                        margin-bottom: 2px;
+                        letter-spacing: 0.04em;
+                        text-transform: uppercase;
+                }
+
+                .schedule-alert {
+                        position: absolute;
+                        top: 15px;
+                        left: 15px;
+                        right: 15px;
+                        z-index: 20;
+                        padding: 8px 10px;
+                        border-radius: 4px;
+                        background-color: rgba(245, 158, 11, 0.2);
+                        color: #fde68a;
+                        border: 1px solid rgba(245, 158, 11, 0.4);
+                        font-size: 12px;
+                        line-height: 1.4;
+                        display: none;
+                        backdrop-filter: blur(2px);
+                        pointer-events: none;
+                }
+
+                .schedule-alert.visible {
+                        display: block;
+                }
+
+                .event-block .e-code {
+                        font-weight: bold;
+                        font-size: 11px;
+                        display: -webkit-box;
+                        line-clamp: 2;
+                        -webkit-line-clamp: 2;
+                        -webkit-box-orient: vertical;
+                        overflow: hidden;
+                        white-space: normal;
+                        line-height: 1.0;
+                }
+
+                .event-block .e-prof {
+                        display: block;
+                        font-size: 10px;
+                        line-height: 1.2;
+                        word-break: break-word;
+                        white-space: normal;
+                        text-overflow: ellipsis;
+                        overflow: hidden;
+                }
+
+                .modal {
+                        display: none;
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background-color: rgba(0, 0, 0, 0.85);
+                        z-index: 1000;
+                        flex-direction: column;
+                        padding: 20px;
+                }
+
+                .modal-header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 20px;
+                        flex-shrink: 0;
+                }
+
+                .modal-header h3 {
+                        color: white;
+                }
+
+                .modal-content {
+                        flex: 1;
+                        overflow-y: auto;
+                        max-height: calc(100vh - 140px);
+                        padding-right: 8px;
+                }
+
+                .legend {
+                        display: flex;
+                        gap: 15px;
+                        font-size: 12px;
+                        color: var(--text-muted);
+                }
+
+                .legend span {
+                        display: flex;
+                        align-items: center;
+                        gap: 5px;
+                }
+
+                .legend-color {
+                        width: 12px;
+                        height: 12px;
+                        border-radius: 2px;
+                }
+
+                .plan-grid-container {
+                        flex: 1;
+                        background-color: var(--surface-color);
+                        border-radius: 6px;
+                        border: 1px solid var(--border);
+                        overflow: auto;
+                        position: relative;
+                        padding: 30px;
+                }
+
+                .plan-grid {
+                        display: flex;
+                        gap: 40px;
+                        position: relative;
+                        min-height: 100%;
+                        width: max-content;
+                }
+
+                .plan-col {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 15px;
+                        width: 190px;
+                        z-index: 2;
+                }
+
+                .col-title {
+                        text-align: center;
+                        font-size: 12px;
+                        font-weight: bold;
+                        color: var(--text-muted);
+                        margin-bottom: 10px;
+                        border-bottom: 1px solid var(--border);
+                        padding-bottom: 5px;
+                }
+
+                .modal-course-box {
+                        background-color: var(--bg-color);
+                        border: 1px solid var(--border);
+                        border-radius: 4px;
+                        padding: 10px;
+                        font-size: 11px;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                        position: relative;
+                }
+
+                .modal-course-box:hover {
+                        border-color: white;
+                        transform: scale(1.05);
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+                        z-index: 10;
+                }
+
+                .modal-course-box .name {
+                        font-weight: bold;
+                        margin-bottom: 4px;
+                        line-height: 1.25;
+                }
+
+                .modal-course-box .code {
+                        color: var(--text-muted);
+                        font-size: 10px;
+                }
+
+                #plan-lines {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        pointer-events: none;
+                        z-index: 1;
+                }
+
+                .highlight-req {
+                        border-color: var(--req-color) !important;
+                        background: #3d2d0b;
+                }
+
+                .highlight-abre {
+                        border-color: var(--abre-color) !important;
+                        background: #0a2e1a;
+                }
+
+                .prof-badge-container {
+                        position: relative;
+                        display: inline-block;
+                        margin-left: 6px;
+                }
+
+                .prof-badge {
+                        background-color: rgba(255, 193, 7, 0.15);
+                        color: #ffc107;
+                        border: 1px solid #ffc107;
+                        padding: 2px 6px;
+                        border-radius: 4px;
+                        font-size: 0.9em;
+                        font-weight: bold;
+                        display: inline-block;
+                }
+
+                .prof-tooltip {
+                        visibility: hidden;
+                        width: 200px;
+                        background-color: #333;
+                        color: #fff;
+                        text-align: left;
+                        border-radius: 6px;
+                        padding: 10px;
+                        position: absolute;
+                        z-index: 1001;
+                        bottom: 130%;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        opacity: 0;
+                        transition: opacity 0.3s;
+                        font-size: 12px;
+                        font-weight: normal;
+                        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+                        pointer-events: none;
+                }
+
+                .prof-tooltip::after {
+                        content: '';
+                        position: absolute;
+                        top: 100%;
+                        left: 0;
+                        width: 100%;
+                        height: 25px;
+                }
+
+                .prof-badge-container:hover .prof-tooltip {
+                        visibility: visible;
+                        opacity: 1;
+                        pointer-events: auto;
+                }
+
+                .prof-tooltip a {
+                        color: #66b3ff;
+                        text-decoration: none;
+                        display: inline-block;
+                        margin-top: 5px;
+                }
+
+                .prof-tooltip a:hover {
+                        text-decoration: underline;
+                }
+
+                .matricula-textarea {
+                        width: 100%;
+                        height: 150px;
+                        background: #111;
+                        color: #0f0;
+                        border: 1px solid var(--border);
+                        border-radius: 4px;
+                        padding: 10px;
+                        font-family: monospace;
+                        font-size: 12px;
+                        resize: none;
+                        margin-top: 10px;
+                }
+        </style>
+</head>
+
+<body>
+
+        <header>
+                <h3>Horarios TEC</h3>
+                <div class="upload-section">
+                        <div>
+                                <label for="carrera-select">Carrera:</label>
+
+                                <select id="carrera-select">
+                                        <option value="" disabled selected>-- Seleccionar Carrera --</option>
+                                </select>
+                        </div>
+
+                        <div>
+                                <label id="semestre-label" for="semestre-file">Semestre:</label>
+
+                                <input type="file" id="semestre-file" accept=".html">
+                        </div>
+                </div>
+
+                <div class="btn-section">
+                        <button id="btn-tutorial" onclick="abrirTutorial()">Tutorial</button>
+                        <button id="btn-plan" onclick="abrirPlanEstudios()" style="display: none;">Plan de
+                                Estudios</button>
+                        <button id="btn-wait" onclick=style="display: none;">Cargando...</button>
+                        <button id="btn-limpiar" class="btn-danger" onclick="clearData()" style="display: none;">Limpiar
+                                Datos</button>
+                        <button id="btn-matricular" onclick="abrirModalMatricular()"
+                                style="display: none; background-color: #28a745; color: white;">Matricular</button>
+                </div>
+        </header>
+
+        <div class="main-container">
+                <div class="left-panel">
+                        <div class="sede-selector">
+                                <label for="sede-selector">Sede</label>
+                                <select id="sede-selector">
+                                        <option value="CARTAGO">CARTAGO</option>
+                                        <option value="SAN CARLOS">SAN CARLOS</option>
+                                        <option value="LIMON">LIMON</option>
+                                        <option value="SAN JOSE">SAN JOSE</option>
+                                        <option value="ALAJUELA">ALAJUELA</option>
+                                </select>
+                                <button type="button" id="cupo-toggle">Cupos: Sí</button>
+                        </div>
+                        <div class="plan-section" id="plan-container"></div>
+                </div>
+                <div class="schedule-section">
+                        <div id="schedule-alert" class="schedule-alert"></div>
+                        <div class="calendar">
+                                <div class="time-labels" id="time-labels"></div>
+                                <div class="day-column" id="day-L">
+                                        <div class="day-header">Lun</div>
+                                </div>
+                                <div class="day-column" id="day-K">
+                                        <div class="day-header">Mar</div>
+                                </div>
+                                <div class="day-column" id="day-M">
+                                        <div class="day-header">Mié</div>
+                                </div>
+                                <div class="day-column" id="day-J">
+                                        <div class="day-header">Jue</div>
+                                </div>
+                                <div class="day-column" id="day-V">
+                                        <div class="day-header">Vie</div>
+                                </div>
+                                <div class="day-column" id="day-S">
+                                        <div class="day-header">Sáb</div>
+                                </div>
+                        </div>
+                </div>
+        </div>
+
+        <input id="block-color-picker" type="color" class="course-color-picker hidden" style="position:absolute;left:-9999px;top:-9999px;">
+
+        <div id="modal-tutorial" class="modal">
+                <div class="modal-header">
+                        <h3>Tutorial</h3>
+                        <button onclick="cerrarTutorial()">Cerrar</button>
+                </div>
+                <div class="modal-content">
+                        <p>Para utilizar esta herramienta, primero debes seleccionar la carrera y cargar el semestre.
+                        </p>
+                        <p>Sólo se permiten las páginas del TEC a partir de estos métodos.</p>
+                        <p>Es experimental así que puede romperse.</p>
+                        <br>
+                        <h3>Plan de Estudios</h3>
+                        <br>
+                        <p>1. Selecciona tu carrera arriba a la izquierda.</p>
+                        <p>2. Espera a que se descargue el plan de estudios.</p>
+                        <br>
+                        <h3>Semestre</h3>
+                        <br>
+                        <p>1. Ingresa al <a href="https://tec-appsext.itcr.ac.cr/matricula">Sistema de Matrícula</a>.
+                        </p>
+                        <p>2. Selecciona el semestre a cursar.</p>
+                        <p>3. Haz click o abre los cursos que deseas mostrar (El símbolo ">" a la izquierda debe ir
+                                hacia abajo).</p>
+                        <p>4. Haz click derecho en cualquier lado y selecciona "Guardar como...".</p>
+                        <p>5. Descarga el archivo como Página Web o .html</p>
+                        <p>(Como referencia, el nombre suele ser: "Sistema de Matrícula del TEC.html")</p>
+                        <p>6. Carga el archivo en esta página en la sección de "Semestre" de arriba.</p>
+                        <br>
+                        <h3>Cómo Usar</h3>
+                        <p>&bullet; A la izquierda saldrán los cursos que seleccionaste en la sección del Semestre.</p>
+                        <p>&bullet; También se puede filtrar por sede y cupos disponibles.</p>
+                        <p>&bullet; Selecciona cualquier curso y luego selecciona un horario. Este se mostrará en el
+                                horario a la derecha.</p>
+                        <p>&bullet; Arriba a la derecha se encuentran diferentes botones una vez cargados los datos.</p>
+                        <p>&bullet; En el Plan de Estudios puedes colocar el mouse sobre los cursos para ver sus
+                                requisitos y corequisitos.</p>
+                        <p>&bullet; En Matricular, puedes mostrar los cursos que seleccionaste en la página de
+                                matrícula.</p>
+                        <p>&bullet; También puedes eliminar los datos en el botón rojo.</p>
+                        <p>&bullet; El plan, semestre y cursos seleccionados se guardan aunque salgas de la página.</p>
+                </div>
+        </div>
+
+        <div id="modal-plan" class="modal">
+                <div class="modal-header">
+                        <h3>Plan de Estudios Completo</h3>
+                        <div class="legend">
+                                <span>
+                                        <div class="legend-color" style="background: var(--req-color);"></div>
+                                        Requisitos
+                                </span>
+                                <span>
+                                        <div class="legend-color" style="background: var(--coreq-color);"></div>
+                                        Co-requisitos
+                                </span>
+                                <span>
+                                        <div class="legend-color" style="background: var(--abre-color);"></div> Abre a
+                                </span>
+                        </div>
+                        <button onclick="cerrarPlanEstudios()">Cerrar</button>
+                </div>
+                <div class="plan-grid-container" id="modal-scroll-container">
+                        <svg id="plan-lines"></svg>
+                        <div class="plan-grid" id="plan-grid"></div>
+                </div>
+        </div>
+
+        <div id="modal-matricular" class="modal">
+                <div class="modal-header">
+                        <h3>Asistente de Matrícula (BETA)</h3>
+                        <button onclick="cerrarModalMatricular()">Cerrar</button>
+                </div>
+                <div class="modal-content">
+                        <p>Este script abrirá automáticamente las pestañas de los cursos que elegiste y resaltará en
+                                color amarillo los grupos correspondientes.</p>
+
+                        <br>
+                        <p>1. Ingresa primero a la página del <a href="https://tec-appsext.itcr.ac.cr/matricula">Sistema
+                                        de Matrícula</a> del TEC y selecciona el semestre.
+
+                        </p>
+                        <p>2. Abre la consola de desarrollador haciendo clic derecho y seleccionando
+                                <b>"Inspeccionar"</b>, luego ve a la pestaña <b>"Consola"</b> (también puedes
+                                usar la tecla F12).
+                        </p>
+
+                        <p><i>Nota: Si es la primera vez que pegas código, puede que el navegador te pida
+                                        escribir <b>"allow pasting"</b> y presionar Enter por seguridad.</i>
+                        </p>
+
+                        <p>3. Finalmente, copia el script de abajo, pégalo en la consola y presiona Enter.</p>
+                        <br>
+                        <p>Se mostrarán los cursos que hayas seleccionado y podrás matricularlos con mayor facilidad
+                                (El script no puede matricularlos automáticamente).</p>
+
+
+                        <textarea id="codigo-matricula" class="matricula-textarea" readonly></textarea>
+                        <br>
+                        <button id="btn-copiar-codigo" onclick="copiarCodigoMatricula()"
+                                style="margin-top: 15px; width: 100%;">Copiar Código</button>
+                </div>
+        </div>
+
+        <script>
+                const APP_VERSION = 'v1.0';
+                const VERSION_STORAGE_KEY = 'tec_version';
+                const PROXY_URL = "https://soft-base-e57d.ignacioapuy.workers.dev?url=";
+
+                const CARRERAS_DIC = [
+                        { nombre: "- Bachillerato -", url: "-" },
+
+                        { nombre: "Admin. de Empresas, Diurno", url: "https://www.tec.ac.cr/bachillerato-administracion-empresas-diurno" },
+
+                        { nombre: "Admin. de Empresas, Nocturno", url: "https://www.tec.ac.cr/bachillerato-administracion-empresas-nocturno" },
+
+                        { nombre: "Enseñanza de la Matemática", url: "https://www.tec.ac.cr/bachillerato-ensenanza-matematica-entornos-tecnologicos" },
+
+                        { nombre: "Gestión en Sostenibilidad Turística", url: "https://www.tec.ac.cr/bachillerato-gestion-sostenibilidad-turistica" },
+
+                        { nombre: "Gestión del Turismo Rural Sostenible", url: "https://www.tec.ac.cr/bachillerato-gestion-turismo-rural-sostenible" },
+
+                        { nombre: "Gestión del Turismo Sostenible", url: "https://www.tec.ac.cr/bachillerato-gestion-turismo-sostenible" },
+
+                        { nombre: "Ing. Biotecnología", url: "https://www.tec.ac.cr/bachillerato-ingenieria-biotecnologia" },
+
+                        { nombre: "Ing. Computación", url: "https://www.tec.ac.cr/plan-bachillerato-ingenieria-computacion" },
+
+                        { nombre: "Ing. Diseño Industrial", url: "https://www.tec.ac.cr/bachillerato-ingenieria-diseno-industrial" },
+
+                        { nombre: "Producción Industrial, Limón", url: "https://www.tec.ac.cr/bachillerato-produccion-industrial-limon" },
+
+                        { nombre: "- Licenciatura -", url: "-" },
+
+                        { nombre: "Admin. de Empresas (Contaduría, Semestral)", url: "https://www.tec.ac.cr/licenciatura-administracion-empresas-enfasis-contaduria-publica-semestral" },
+
+                        { nombre: "Admin. de Empresas (Contaduría, Bimestral)", url: "https://www.tec.ac.cr/licenciatura-administracion-empresas-enfasis-contaduria-publica-bimestral" },
+
+                        { nombre: "Admin. de Empresas (Financiera, Semestral)", url: "https://www.tec.ac.cr/licenciatura-administracion-empresas-enfasis-administracion-financiera-semestral" },
+
+                        { nombre: "Admin. de Empresas (Financiera, Bimestral)", url: "https://www.tec.ac.cr/licenciatura-administracion-empresas-enfasis-administracion-financiera-bimestral" },
+
+                        { nombre: "Admin. de Empresas (Mercadeo, Semestral)", url: "https://www.tec.ac.cr/licenciatura-administracion-empresas-enfasis-mercadeo-semestral" },
+
+                        { nombre: "Admin. de Empresas (Mercadeo, Bimestral)", url: "https://www.tec.ac.cr/licenciatura-administracion-empresas-enfasis-mercadeo-bimestral" },
+
+                        { nombre: "Admin. de Empresas (Recursos H., Bimestral)", url: "https://www.tec.ac.cr/licenciatura-administracion-empresas-enfasis-recursos-humanos-bimestral" },
+
+                        { nombre: "Admin. de Tecnologías de Información", url: "https://www.tec.ac.cr/licenciatura-administracion-tecnologias-informacion" },
+
+                        { nombre: "Educación Técnica", url: "https://www.tec.ac.cr/licenciatura-educacion-tecnica" },
+
+
+                        { nombre: "Enseñanza de la Matemática", url: "https://www.tec.ac.cr/licenciatura-ensenanza-matematica-entornos-tecnologicos" },
+
+                        { nombre: "Ing. Agrícola", url: "https://www.tec.ac.cr/licenciatura-ingenieria-agricola" },
+
+                        { nombre: "Ing. Agronegocios", url: "https://www.tec.ac.cr/plan-licenciatura-ingenieria-agronegocios" },
+
+                        { nombre: "Ing. Agronomía", url: "https://www.tec.ac.cr/licenciatura-ingenieria-agronomia" },
+
+                        { nombre: "Ing. Ambiental", url: "https://www.tec.ac.cr/licenciatura-ingenieria-ambiental" },
+
+                        { nombre: "Ing. Biotecnología", url: "https://www.tec.ac.cr/licenciatura-ingenieria-biotecnologia" },
+
+                        { nombre: "Ing. Computadores", url: "https://www.tec.ac.cr/licenciatura-ingenieria-computadores" },
+
+                        { nombre: "Ing. Construcción", url: "https://www.tec.ac.cr/licenciatura-ingenieria-construccion" },
+
+                        { nombre: "Ing. Diseño Industrial (Productos)", url: "https://www.tec.ac.cr/licenciatura-ingenieria-diseno-industrial-enfasis-desarrollo-productos" },
+
+                        { nombre: "Ing. Diseño Industrial (Visual)", url: "https://www.tec.ac.cr/licenciatura-ingenieria-diseno-industrial-enfasis-comunicacion-visual" },
+
+                        { nombre: "Ing. Electrónica", url: "https://www.tec.ac.cr/licenciatura-ingenieria-electronica-0" },
+
+                        { nombre: "Ing. Física", url: "https://www.tec.ac.cr/licenciatura-ingenieria-fisica" },
+
+                        { nombre: "Ing. Forestal (Conservación y Restauración)", url: "https://www.tec.ac.cr/licenciatura-ingenieria-forestal-enfasis-conservacion-restauracion-ecosistemas-forestales" },
+
+                        { nombre: "Ing. Forestal (Manejo y Producción)", url: "https://www.tec.ac.cr/licenciatura-ingenieria-forestal-enfasis-manejo-produccion-forestal" },
+
+                        { nombre: "Ing. Materiales", url: "https://www.tec.ac.cr/licenciatura-ingenieria-materiales" },
+
+                        { nombre: "Ing. Mecatrónica", url: "https://www.tec.ac.cr/plan-licenciatura-ingenieria-mecatronica" },
+
+                        { nombre: "Ing. Producción Industrial", url: "https://www.tec.ac.cr/licenciatura-ingenieria-produccion-industrial" },
+
+                        { nombre: "Ing. Seguridad Laboral e Higiene", url: "https://www.tec.ac.cr/licenciatura-ingenieria-seguridad-laboral-higiene-ambiental" },
+
+                        { nombre: "Mantenimiento Industrial", url: "https://www.tec.ac.cr/licenciatura-mantenimiento-industrial" },
+                ];
+
+                let planData = [];
+                let ofertaData = [];
+                let selectedGroups = [];
+                let expandedCourses = new Set();
+                let sedeSeleccionada = 'CARTAGO';
+                let mostrarSoloConCupo = false;
+                let misProfesoresData = [];
+
+                const H_START = 7;
+                const H_END = 22;
+                const TOTAL_HOURS = H_END - H_START;
+                const VERTICAL_PADDING_PERCENT = 2;
+                const USABLE_HEIGHT_PERCENT = 100 - (VERTICAL_PADDING_PERCENT * 2);
+
+                const DAY_NAMES = {
+                        L: 'Lun',
+                        K: 'Mar',
+                        M: 'Mié',
+                        J: 'Jue',
+                        V: 'Vie',
+                        S: 'Sáb'
+                };
+
+                const colors = ['#1e3a8a', '#b91c1c', '#047857', '#b45309', '#6d28d9', '#be185d', '#0e7490', '#a16207', '#0f766e', '#4338ca'];
+                const COURSE_COLORS_STORAGE_KEY = 'tec_course_colors';
+                let colorMap = {};
+
+                function normalizeHexColor(color) {
+                        if (!color || typeof color !== 'string') return null;
+                        const trimmed = color.trim();
+                        if (!trimmed) return null;
+                        if (trimmed.startsWith('#')) {
+                                const normalized = trimmed.length === 4
+                                        ? `#${trimmed.slice(1).split('').map(ch => ch + ch).join('')}`
+                                        : trimmed;
+                                return /^#[0-9a-f]{6}$/i.test(normalized) ? normalized : null;
+                        }
+                        return null;
+                }
+
+                function getContrastTextColor(backgroundColor) {
+                        const normalized = normalizeHexColor(backgroundColor);
+                        if (!normalized) return '#ffffff';
+
+                        const hex = normalized.slice(1);
+                        const r = parseInt(hex.slice(0, 2), 16);
+                        const g = parseInt(hex.slice(2, 4), 16);
+                        const b = parseInt(hex.slice(4, 6), 16);
+                        const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+                        return luminance > 0.6 ? '#111111' : '#ffffff';
+                }
+
+                function getCourseColor(cursoId) {
+                        return colorMap[cursoId] || '#555555';
+                }
+
+                function actualizarBotones() {
+                        const tieneDatos = ofertaData && ofertaData.length > 0;
+                        const planCargado = planData && planData.length > 0;
+
+                        document.getElementById('btn-tutorial').style.display = 'inline-block';
+
+                        document.getElementById('btn-limpiar').style.display = (tieneDatos || planCargado) ? 'inline-block' : 'none';
+                        document.getElementById('btn-matricular').style.display = tieneDatos ? 'inline-block' : 'none';
+                        document.getElementById('btn-plan').style.display = planCargado ? 'inline-block' : 'none';
+                        document.getElementById('btn-wait').style.display = planCargado ? 'none' : 'none';
+
+                        const fileInput = document.getElementById('semestre-file');
+                        const semestreLabel = document.getElementById('semestre-label');
+
+                        if (tieneDatos) {
+                                fileInput.style.display = 'none';
+                                semestreLabel.innerHTML = 'Semestre: <b style="color:var(--abre-color)">Listo</b> <a href="#" id="change-semestre" style="font-size:11px; color:var(--text-muted); text-decoration:underline; margin-left: 5px;">(Cambiar)</a>';
+                                document.getElementById('change-semestre').onclick = (e) => {
+                                        e.preventDefault();
+                                        fileInput.click();
+                                };
+                        } else {
+                                fileInput.style.display = 'block';
+                                semestreLabel.textContent = 'Semestre:';
+                        }
+                }
+
+                async function cargarMisProfesores() {
+                        try {
+                                const url = 'https://costarica.misprofesores.com/escuelas/ITCR-Instituto-Tecnologico-de-Costa-Rica_1135';
+                                const targetUrl = PROXY_URL ? `${PROXY_URL}${encodeURIComponent(url)}` : url;
+                                const response = await fetch(targetUrl);
+                                const html = await response.text();
+
+                                const match = html.match(/var dataSet = (\[.*?\]);/);
+                                if (match && match[1]) {
+                                        misProfesoresData = JSON.parse(match[1]);
+                                        renderPlan();
+                                }
+                        } catch (e) {
+                                console.warn("Fallo al obtener datos de MisProfesores. Se abortan las calificaciones.", e);
+                        }
+                }
+
+                function normalizar(texto) {
+                        if (!texto) return "";
+                        return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim();
+                }
+
+                function versionToNumber(version) {
+                        if (!version || typeof version !== 'string') return 0;
+                        const normalized = version.replace(/^v/i, '').trim();
+                        const parts = normalized.split('.').map(n => parseInt(n, 10) || 0);
+                        return parts[0] * 100 + (parts[1] || 0);
+                }
+
+                function checkAppVersion() {
+                        try {
+                                const storedVersion = localStorage.getItem(VERSION_STORAGE_KEY);
+                                const currentNumber = versionToNumber(APP_VERSION);
+                                const storedNumber = versionToNumber(storedVersion);
+
+                                if (!storedVersion || storedNumber < currentNumber) {
+                                        alert(`Se han hecho cambios importantes, favor limpiar datos antes de continuar.\nVersión ${APP_VERSION}`);
+                                        localStorage.setItem(VERSION_STORAGE_KEY, APP_VERSION);
+                                }
+                        } catch (e) {
+                                console.warn('No se pudo verificar la versión de la aplicación.', e);
+                        }
+                }
+
+                function encontrarProfesor(nombreTec) {
+                        if (!misProfesoresData || misProfesoresData.length === 0) return null;
+                        const tecNorm = normalizar(nombreTec);
+                        if (!tecNorm || tecNorm === "SIN PROFESOR") return null;
+
+                        for (const prof of misProfesoresData) {
+                                if (!prof.n || !prof.a || !prof.c) continue;
+                                const primerNombre = normalizar(prof.n).split(/\s+/)[0];
+                                const primerApellido = normalizar(prof.a).split(/\s+/)[0];
+
+                                if (tecNorm.includes(primerNombre) && tecNorm.includes(primerApellido)) {
+                                        return prof;
+                                }
+                        }
+                        return null;
+                }
+
+                function abrirModalMatricular() {
+                        const modal = document.getElementById('modal-matricular');
+                        const inputCodigo = document.getElementById('codigo-matricula');
+
+                        if (selectedGroups.length === 0) {
+                                inputCodigo.value = "// No has seleccionado ningún grupo para matricular.";
+                        } else {
+                                const cursosData = selectedGroups.map(g => ({ id: g.cursoId, grupo: g.grupo }));
+                                const cursosJSON = JSON.stringify(cursosData);
+
+                                let scriptStr = `
+async function mostrarMatricula() {
+    console.log("Iniciando selección de cursos...");
+    const cursos = ${cursosJSON};
+    
+    for (const c of cursos) {
+        const cursoRow = document.getElementById(c.id);
+        if (cursoRow) {
+            const trH = document.getElementById('trH' + c.id);
+            const cerrado = !trH || trH.style.display === 'none' || trH.innerHTML.trim() === '';
+            
+            if (cerrado) {
+                const img = cursoRow.querySelector('.imgAccordion');
+                if (img) {
+                    img.click();
+                    await new Promise(r => setTimeout(r, 800)); 
+                }
+            }
+            
+            const trHActualizado = document.getElementById('trH' + c.id);
+            if (trHActualizado) {
+                const filas = trHActualizado.querySelectorAll('.tableHorarios tbody tr');
+                for (const fila of filas) {
+                    const colGrupo = fila.querySelector('.colHoGrupo');
+                    if (colGrupo && colGrupo.textContent.trim() === c.grupo) {
+                        fila.style.backgroundColor = '#fef08a'; 
+                        fila.style.color = '#000';
+                        fila.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            }
+        }
+    }
+    console.log("Todo listo. Ya puedes matricular.");
+}
+mostrarMatricula();`;
+                                inputCodigo.value = scriptStr;
+                        }
+
+                        modal.style.display = 'flex';
+                }
+
+                function cerrarModalMatricular() {
+                        document.getElementById('modal-matricular').style.display = 'none';
+                }
+
+                function copiarCodigoMatricula() {
+                        const inputCodigo = document.getElementById('codigo-matricula');
+                        inputCodigo.select();
+                        inputCodigo.setSelectionRange(0, 99999);
+
+                        try {
+                                navigator.clipboard.writeText(inputCodigo.value);
+                                const btn = document.getElementById('btn-copiar-codigo');
+                                const txtOriginal = btn.innerText;
+                                btn.innerText = "¡Código Copiado!";
+                                setTimeout(() => btn.innerText = txtOriginal, 2000);
+                        } catch (err) {
+                                console.error("Fallo al copiar", err);
+                        }
+                }
+
+                function formatHourLabel(hour, minute = 0) {
+                        const period = hour >= 12 ? 'PM' : 'AM';
+                        const hour12 = hour % 12 || 12;
+                        return `${hour12}:${String(minute).padStart(2, '0')} ${period}`;
+                }
+
+                function formatHourRange(startHour, startMinute, endHour, endMinute) {
+                        return `${formatHourLabel(startHour, startMinute)} - ${formatHourLabel(endHour, endMinute)}`;
+                }
+
+                document.addEventListener("DOMContentLoaded", () => {
+                        checkAppVersion();
+                        drawRows();
+                        setupSedeSelector();
+                        setupCupoToggle();
+                        poblarSelectorCarreras();
+                        loadStorage();
+                        cargarMisProfesores();
+                });
+
+                function poblarSelectorCarreras() {
+                        const select = document.getElementById('carrera-select');
+                        CARRERAS_DIC.forEach(c => {
+                                const opt = document.createElement('option');
+                                if (c.url != "-") {
+                                        opt.value = c.url;
+                                } else {
+                                        opt.disabled = true;
+                                }
+                                opt.textContent = c.nombre;
+                                select.appendChild(opt);
+                        });
+
+                        select.addEventListener('change', async (e) => {
+                                const url = e.target.value;
+                                if (!url) return;
+                                await cargarCarreraDesdeURL(url);
+                        });
+                }
+
+                async function cargarCarreraDesdeURL(url) {
+                        document.getElementById('btn-plan').style.display = "none";
+                        document.getElementById('btn-wait').style.display = "inline-block";
+                        const targetUrl = PROXY_URL ? `${PROXY_URL}${encodeURIComponent(url)}` : url;
+
+                        try {
+                                const response = await fetch(targetUrl, {
+                                        method: 'GET',
+                                        cache: 'no-store',
+                                        headers: {}
+                                });
+
+                                if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+
+                                const data = await response.text();
+                                procesarHTMLPlan(data);
+                                localStorage.setItem('tec_carrera_seleccionada', url);
+
+                        } catch (err) {
+                                console.error("Error al cargar la carrera:", err);
+                                alert(`No se pudo obtener el plan de estudios: ${err.message}`);
+                                document.getElementById('btn-wait').style.display = "none";
+                        }
+                }
+
+                function capitalCase(str) {
+                        if (!str) return '';
+                        const esRomano = /^[ivx]+$/i;
+                        return str.trim().split(/\s+/).map((palabra, idx) => {
+                                if (esRomano.test(palabra)) return palabra.toUpperCase();
+                                if (idx === 0) return palabra.charAt(0).toUpperCase() + palabra.slice(1);
+                                return palabra;
+                        }).join(' ');
+                }
+
+                function extraerCodigos(labelEl) {
+                        if (!labelEl) return [];
+                        const popback = labelEl.querySelector('.popback');
+                        const raw = popback ? popback.textContent : labelEl.textContent;
+                        return raw.split(',')
+                                .map(s => s.trim())
+                                .filter(s => s && s.toLowerCase() !== 'no hay');
+                }
+
+                function normalizarTexto(text) {
+                        return (text || '')
+                                .toString()
+                                .normalize('NFD')
+                                .replace(/[\u0300-\u036f]/g, '')
+                                .replace(/\s+/g, ' ')
+                                .trim()
+                                .toUpperCase();
+                }
+
+                function obtenerSedeSeleccionada() {
+                        return document.getElementById('sede-selector')?.value || sedeSeleccionada || 'CARTAGO';
+                }
+
+                function coincideConSede(sedeText) {
+                        const seleccionada = normalizarTexto(obtenerSedeSeleccionada());
+                        const sede = normalizarTexto(sedeText);
+                        if (!seleccionada || seleccionada === 'TODAS') return true;
+                        return sede.includes(seleccionada);
+                }
+
+                function coincideConCupo(tieneCupo) {
+                        return mostrarSoloConCupo ? Boolean(tieneCupo) : true;
+                }
+
+                function obtenerCuposTexto(cupoText) {
+                        const texto = (cupoText || '').toString().trim();
+                        if (!texto) return '0 Cupos';
+                        const match = texto.match(/^(\d+)/);
+                        return match ? `${parseInt(match[1], 10)} Cupos` : `${texto} Cupos`;
+                }
+
+                function calcularCupoDisponible(cupoText) {
+                        const texto = (cupoText || '').toString().trim();
+                        if (!texto) return false;
+                        const numero = texto.match(/^(\d+)$/);
+                        if (numero) {
+                                return parseInt(numero[1], 10) > 0;
+                        }
+                        const fraccion = texto.match(/^(\d+)\s*\/\s*(\d+)$/);
+                        if (fraccion) {
+                                return parseInt(fraccion[1], 10) > 0;
+                        }
+                        return false;
+                }
+
+                function parsearBox(box, semestre, semestreLabel) {
+                        let id = box.querySelector('.code')?.textContent.replace('-', '').trim() || '';
+                        let nombre = capitalCase(box.querySelector('.name')?.textContent || '');
+
+                        let creditos = "";
+                        let horas = "";
+                        box.querySelectorAll('.block').forEach(block => {
+                                const label = block.querySelector('.label');
+                                const circle = block.querySelector('.circle');
+                                if (label && circle) {
+                                        const labelText = label.textContent.toLowerCase();
+                                        if (labelText.includes('crédito') || labelText.includes('credito')) creditos = circle.textContent.trim();
+                                        else if (labelText.includes('hora')) horas = circle.textContent.trim();
+                                }
+                        });
+
+                        let reqs = [];
+                        const reqSection = box.querySelector('.requirements');
+                        if (reqSection) {
+                                reqSection.querySelectorAll('.requirement .label3').forEach(lbl => {
+                                        reqs.push(...extraerCodigos(lbl));
+                                });
+                        }
+
+                        let coreqs = [];
+                        const coreqSection = box.querySelector('.corequirement');
+                        if (coreqSection) {
+                                coreqSection.querySelectorAll('.label3').forEach(lbl => {
+                                        coreqs.push(...extraerCodigos(lbl));
+                                });
+                        }
+
+                        if (id && !planData.find(m => m.id === id)) {
+                                planData.push({
+                                        id,
+                                        nombre,
+                                        creditos,
+                                        horas,
+                                        semestre,
+                                        semestreLabel,
+                                        requisitos: reqs,
+                                        corequisitos: coreqs,
+                                        es_requisito_de: [],
+                                        es_corequisito_de: []
+                                });
+                        }
+                }
+
+                function procesarHTMLPlan(htmlString) {
+                        const doc = new DOMParser().parseFromString(htmlString, 'text/html');
+
+                        const bloqueLabels = {};
+
+                        const tabs = doc.querySelectorAll('.slider-nav .tabs');
+                        tabs.forEach((tab, index) => {
+                                const idx = tab.getAttribute('data-slick-index') ?? index;
+                                const texto = tab.textContent.trim();
+                                if (texto && !(idx in bloqueLabels)) {
+                                        bloqueLabels[idx] = texto;
+                                }
+                        });
+
+                        planData = [];
+
+                        let slides = Array.from(doc.querySelectorAll('.slider-single .slick-track > .slick-slide'))
+                                .filter(s => !s.classList.contains('slick-cloned'));
+
+                        if (slides.length === 0) {
+                                const sliderSingle = doc.querySelector('.slider-single');
+                                if (sliderSingle) {
+                                        slides = Array.from(sliderSingle.children).filter(child => child.querySelector('.box'));
+                                }
+                        }
+
+                        if (slides.length > 0) {
+                                slides.forEach((slide, idx) => {
+                                        const slickIdx = slide.getAttribute('data-slick-index');
+                                        const semestre = slickIdx !== null ? parseInt(slickIdx, 10) : idx;
+                                        const label = bloqueLabels[semestre] || `Bloque ${semestre + 1}`;
+
+                                        slide.querySelectorAll('.box').forEach(box => {
+                                                parsearBox(box, semestre, label);
+                                        });
+                                });
+                        } else {
+                                doc.querySelectorAll('.box').forEach(box => parsearBox(box, 0, 'Plan de Estudios'));
+                        }
+
+                        if (planData.length === 0) {
+                                alert("Error: No se pudieron extraer los cursos del HTML de la carrera.");
+                                return;
+                        }
+
+                        planData.forEach(curso => {
+                                curso.requisitos.forEach(req => {
+                                        let parent = planData.find(p => p.id === req);
+                                        if (parent) parent.es_requisito_de.push(curso.id);
+                                });
+                                curso.corequisitos.forEach(coreq => {
+                                        let parent = planData.find(p => p.id === coreq);
+                                        if (parent) parent.es_corequisito_de.push(curso.id);
+                                });
+                        });
+
+                        saveData();
+                }
+
+                document.getElementById('semestre-file').addEventListener('change', function (e) {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = function (evt) {
+                                const doc = new DOMParser().parseFromString(evt.target.result, 'text/html');
+                                const filasCursos = Array.from(doc.querySelectorAll('tr[id]:not(.Rowaccordion)')).filter(tr => {
+                                        const img = tr.querySelector('.imgAccordion');
+                                        return img && img.src.includes('openlevel.png');
+                                });
+
+                                if (filasCursos.length === 0) {
+                                        alert("Error: No se encontraron cursos abiertos. Por favor abre o selecciona todos los cursos en el Sistema de Matrícula.");
+                                        return;
+                                }
+
+                                ofertaData = [];
+                                filasCursos.forEach(filaCurso => {
+                                        const idCurso = filaCurso.getAttribute('id');
+                                        const nombreEl = filaCurso.querySelector(`.colMateria #nombre${idCurso}`) || filaCurso.querySelector('.colMateria');
+                                        const nombreCurso = nombreEl ? nombreEl.textContent.trim() : '';
+
+                                        const filaHorario = doc.getElementById(`trH${idCurso}`);
+                                        const grupos = [];
+
+                                        if (filaHorario) {
+                                                filaHorario.querySelectorAll('.tableHorarios tbody tr').forEach(filaGrupo => {
+                                                        const sede = filaGrupo.querySelector('.colHoSede')?.textContent.trim() || '';
+                                                        const numGrupo = filaGrupo.querySelector('.colHoGrupo')?.textContent.trim() || '';
+                                                        const profesor = filaGrupo.querySelector('.colHoProfesor')?.textContent.trim() || 'Sin Profesor';
+                                                        const estado = filaGrupo.querySelector('.colHoEstado')?.textContent.trim() || '';
+                                                        const cupoText = filaGrupo.querySelector('.colHoCupo')?.textContent.trim() || '';
+                                                        const horarioEl = filaGrupo.querySelector('.colHoHorario');
+
+                                                        let horarios = [];
+                                                        if (horarioEl) {
+                                                                let bloques = Array.from(horarioEl.childNodes).map(n => n.textContent.trim()).filter(t => t !== '');
+                                                                for (let i = 0; i < bloques.length; i += 2) {
+                                                                        if (bloques[i]) horarios.push(bloques[i] + (bloques[i + 1] ? ` (${bloques[i + 1]})` : ''));
+                                                                }
+                                                        }
+
+                                                        if (numGrupo) {
+                                                                grupos.push({ grupo: numGrupo, profesor, horarios, estado, sede, cupoText, cupoDisponible: calcularCupoDisponible(cupoText) });
+                                                        }
+                                                });
+                                        }
+                                        if (grupos.length > 0) {
+                                                ofertaData.push({ id: idCurso, nombre: nombreCurso, grupos });
+                                        }
+                                });
+
+                                saveData();
+                        };
+                        reader.readAsText(file);
+                });
+
+                function setupSedeSelector() {
+                        const selector = document.getElementById('sede-selector');
+                        if (!selector) return;
+
+                        const savedSede = localStorage.getItem('tec_sede') || 'CARTAGO';
+                        sedeSeleccionada = savedSede;
+                        selector.value = savedSede;
+
+                        selector.addEventListener('change', () => {
+                                sedeSeleccionada = selector.value;
+                                localStorage.setItem('tec_sede', sedeSeleccionada);
+                                sincronizarSeleccionPorFiltros();
+                                saveData();
+                        });
+                }
+
+                function setupCupoToggle() {
+                        const button = document.getElementById('cupo-toggle');
+                        if (!button) return;
+
+                        const savedCupo = localStorage.getItem('tec_cupo') || 'NO';
+                        mostrarSoloConCupo = savedCupo === 'SI';
+                        actualizarEtiquetaCupo();
+
+                        button.addEventListener('click', () => {
+                                mostrarSoloConCupo = !mostrarSoloConCupo;
+                                localStorage.setItem('tec_cupo', mostrarSoloConCupo ? 'SI' : 'NO');
+                                actualizarEtiquetaCupo();
+                                sincronizarSeleccionPorFiltros();
+                                saveData();
+                        });
+                }
+
+                function actualizarEtiquetaCupo() {
+                        const button = document.getElementById('cupo-toggle');
+                        if (!button) return;
+                        button.textContent = `Sólo cupos: ${mostrarSoloConCupo ? 'Sí' : 'No'}`;
+                }
+
+                function sincronizarSeleccionPorFiltros() {
+                        const visibles = new Set();
+                        ofertaData.forEach(curso => {
+                                (curso.grupos || []).forEach(grupo => {
+                                        if (coincideConSede(grupo.sede) && coincideConCupo(grupo.cupoDisponible)) {
+                                                visibles.add(`${curso.id}:${grupo.grupo}`);
+                                        }
+                                });
+                        });
+                        selectedGroups = selectedGroups.filter(sel => visibles.has(`${sel.cursoId}:${sel.grupo}`));
+                }
+
+                function saveData() {
+                        localStorage.setItem('tec_plan', JSON.stringify(planData));
+                        localStorage.setItem('tec_oferta', JSON.stringify(ofertaData));
+                        localStorage.setItem('tec_selections', JSON.stringify(selectedGroups));
+                        localStorage.setItem('tec_sede', sedeSeleccionada);
+                        localStorage.setItem('tec_cupo', mostrarSoloConCupo ? 'SI' : 'NO');
+                        localStorage.setItem(COURSE_COLORS_STORAGE_KEY, JSON.stringify(colorMap));
+
+                        setColors();
+                        renderPlan();
+                        renderSchedule();
+                        actualizarBotones();
+                }
+
+                function loadStorage() {
+                        const p = localStorage.getItem('tec_plan');
+                        const o = localStorage.getItem('tec_oferta');
+                        const s = localStorage.getItem('tec_selections');
+                        const sedeGuardada = localStorage.getItem('tec_sede');
+                        const cupoGuardado = localStorage.getItem('tec_cupo');
+                        const carreraGuardada = localStorage.getItem('tec_carrera_seleccionada');
+                        const coloresGuardados = localStorage.getItem(COURSE_COLORS_STORAGE_KEY);
+
+                        colorMap = {};
+                        if (coloresGuardados) {
+                                try {
+                                        const parsedColors = JSON.parse(coloresGuardados);
+                                        Object.entries(parsedColors).forEach(([cursoId, color]) => {
+                                                const normalizedColor = normalizeHexColor(color);
+                                                if (normalizedColor) colorMap[cursoId] = normalizedColor;
+                                        });
+                                } catch (e) {
+                                        console.warn('No se pudieron cargar los colores guardados.', e);
+                                }
+                        }
+
+                        if (p) planData = JSON.parse(p);
+                        if (o) ofertaData = JSON.parse(o);
+                        if (s) selectedGroups = JSON.parse(s);
+                        if (sedeGuardada) sedeSeleccionada = sedeGuardada;
+                        if (cupoGuardado) mostrarSoloConCupo = cupoGuardado === 'SI';
+                        if (carreraGuardada) {
+                                const sel = document.getElementById('carrera-select');
+                                if (sel) sel.value = carreraGuardada;
+                        }
+
+                        const selector = document.getElementById('sede-selector');
+                        if (selector) selector.value = sedeSeleccionada;
+                        actualizarEtiquetaCupo();
+
+                        const colorPickerInput = document.getElementById('block-color-picker');
+                        if (colorPickerInput) {
+                                const hidePicker = () => {
+                                        colorPickerInput.classList.add('hidden');
+                                        colorPickerInput.style.display = 'none';
+                                        colorPickerInput.style.left = '-9999px';
+                                        colorPickerInput.style.top = '-9999px';
+                                };
+
+                                colorPickerInput.addEventListener('change', (e) => {
+                                        const cursoId = e.target.dataset.cursoId;
+                                        if (cursoId) {
+                                                cambiarColorCurso(cursoId, e.target.value);
+                                        }
+                                        hidePicker();
+                                });
+
+                                colorPickerInput.addEventListener('blur', () => {
+                                        hidePicker();
+                                });
+                        }
+
+                        if (planData.length > 0 || ofertaData.length > 0) {
+                                saveData();
+                        } else {
+                                actualizarBotones();
+                        }
+                }
+
+                function clearData() {
+                        try {
+                                localStorage.removeItem('tec_plan');
+                                localStorage.removeItem('tec_oferta');
+                                localStorage.removeItem('tec_selections');
+                                localStorage.removeItem('tec_sede');
+                                localStorage.removeItem('tec_cupo');
+                                localStorage.removeItem('tec_carrera_seleccionada');
+                                localStorage.removeItem(COURSE_COLORS_STORAGE_KEY);
+                        } catch (e) {
+                                console.warn('Error clearing localStorage keys', e);
+                        }
+                        planData = []; ofertaData = []; selectedGroups = [];
+                        expandedCourses.clear();
+                        colorMap = {};
+
+                        const carreraSelect = document.getElementById('carrera-select');
+                        const semestreInput = document.getElementById('semestre-file');
+                        if (carreraSelect) carreraSelect.value = '';
+                        if (semestreInput) semestreInput.value = '';
+
+                        const selector = document.getElementById('sede-selector');
+                        if (selector) selector.value = 'CARTAGO';
+                        sedeSeleccionada = 'CARTAGO';
+                        mostrarSoloConCupo = false;
+                        actualizarEtiquetaCupo();
+
+                        actualizarBotones();
+
+                        setTimeout(() => {
+                                window.location.reload();
+                        }, 0);
+                }
+
+                function setColors() {
+                        const savedColors = JSON.parse(localStorage.getItem(COURSE_COLORS_STORAGE_KEY) || '{}');
+                        let colorIdx = 0;
+                        ofertaData.forEach(curso => {
+                                const savedColor = normalizeHexColor(savedColors[curso.id]);
+                                if (savedColor) {
+                                        colorMap[curso.id] = savedColor;
+                                } else if (!colorMap[curso.id]) {
+                                        colorMap[curso.id] = colors[colorIdx % colors.length];
+                                        colorIdx++;
+                                }
+                        });
+                }
+
+                function cambiarColorCurso(cursoId, nuevoColor) {
+                        const normalizedColor = normalizeHexColor(nuevoColor);
+                        if (!normalizedColor) return;
+
+                        colorMap[cursoId] = normalizedColor;
+                        localStorage.setItem(COURSE_COLORS_STORAGE_KEY, JSON.stringify(colorMap));
+                        saveData();
+                }
+
+                function renderPlan() {
+                        const container = document.getElementById('plan-container');
+                        container.innerHTML = '';
+
+                        if (ofertaData.length === 0) return;
+
+                        ofertaData.forEach(curso => {
+                                const datosPlan = planData.find(p => p.id === curso.id) || {
+                                        creditos: '', horas: '', requisitos: [], corequisitos: [], es_requisito_de: [], es_corequisito_de: []
+                                };
+
+                                const gruposVisibles = (curso.grupos || []).filter(g => coincideConSede(g.sede) && coincideConCupo(g.cupoDisponible));
+                                if (gruposVisibles.length === 0) return;
+
+                                const box = document.createElement('div');
+                                box.className = 'course-box';
+                                if (expandedCourses.has(curso.id)) box.classList.add('expanded');
+                                box.dataset.id = curso.id;
+
+                                let detailsHTML = '';
+                                if (datosPlan.requisitos.length) detailsHTML += `<b>Req:</b> ${datosPlan.requisitos.join(', ')}<br>`;
+                                if (datosPlan.corequisitos.length) detailsHTML += `<b>Co-req:</b> ${datosPlan.corequisitos.join(', ')}<br>`;
+                                if (datosPlan.es_requisito_de.length) detailsHTML += `<b>Abre:</b> ${datosPlan.es_requisito_de.join(', ')}<br>`;
+                                if (datosPlan.es_corequisito_de.length) detailsHTML += `<b>Co-req de:</b> ${datosPlan.es_corequisito_de.join(', ')}`;
+
+                                const courseColor = getCourseColor(curso.id);
+                                const courseTextColor = getContrastTextColor(courseColor);
+
+                                box.innerHTML = `
+                <div class="course-header">
+                    <div class="course-title">${curso.nombre}</div>
+                    <div class="course-meta">
+                        <span class="code" style="color: ${courseColor}">(${curso.id})</span>
+                        <div class="course-color-controls">
+                            <button type="button" class="color-picker-toggle" data-course-id="${curso.id}" style="background-color: ${courseColor}; color: ${courseTextColor};" title="Cambiar color del curso" aria-label="Cambiar color del curso ${curso.id}">🎨</button>
+                            <input type="color" class="course-color-picker hidden" data-course-id="${curso.id}" value="${courseColor}">
+                        </div>
+                    </div>
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted); white-space: nowrap; margin-top: 6px;">
+                    ${datosPlan.creditos ? `Créditos: ${datosPlan.creditos}` : ''} 
+                    ${datosPlan.horas ? `| Horas: ${datosPlan.horas}` : ''}
+                </div>
+                <div class="details">${detailsHTML}</div>
+            `;
+
+                                const groupCont = document.createElement('div');
+                                groupCont.className = 'groups-container';
+
+                                gruposVisibles.forEach(g => {
+                                        const gDiv = document.createElement('div');
+                                        gDiv.className = 'group-item';
+
+                                        const isSelected = selectedGroups.some(sel => sel.cursoId === curso.id && sel.grupo === g.grupo);
+                                        if (isSelected) gDiv.classList.add('selected');
+
+                                        let estadoBadge = '';
+                                        const estadoLower = g.estado.toLowerCase();
+                                        if (estadoLower.includes('semipresencial')) estadoBadge += '<span class="badge semi">Semi</span>';
+                                        if (estadoLower.includes('virtual')) estadoBadge += '<span class="badge virt">Virt</span>';
+                                        if (estadoLower.includes('asistid')) estadoBadge += '<span class="badge asis">Asis</span>';
+
+                                        const formatHours = g.horarios.map(hStr => {
+                                                const match = hStr.match(/^([LKMJVS])\s+(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})(?:\s*\((.*?)\))?/);
+                                                if (!match) return hStr;
+
+                                                const startHour = parseInt(match[2], 10);
+                                                const startMinute = parseInt(match[3], 10);
+                                                const endHour = parseInt(match[4], 10);
+                                                const endMinute = parseInt(match[5], 10);
+                                                const dayLabel = DAY_NAMES[match[1]] || match[1];
+                                                const timeLabel = `${dayLabel} ${formatHourRange(startHour, startMinute, endHour, endMinute)}`;
+                                                return match[6] ? `${timeLabel} | ${match[6]}` : timeLabel;
+                                        });
+
+                                        const cuposLabel = obtenerCuposTexto(g.cupoText);
+
+                                        let profHTML = `<div style="font-size:10px; color:var(--text-main); font-weight:bold; margin-bottom: 2px; display:flex; align-items:center;">
+                                                <span>${g.profesor}</span>`;
+
+                                        const profData = encontrarProfesor(g.profesor);
+                                        if (profData) {
+                                                profHTML += `
+                                                <div class="prof-badge-container">
+                                                        <span class="prof-badge">⭐ ${parseFloat(profData.c).toFixed(1)}</span>
+                                                        <div class="prof-tooltip">
+                                                                <strong>${profData.n} ${profData.a}</strong><br>
+                                                                Escuela: ${profData.d}<br>
+                                                                Calificación: <strong>${parseFloat(profData.c).toFixed(1)}/10</strong><br>
+                                                                Votos: ${profData.m}<br>
+                                                                <a href="https://costarica.misprofesores.com/profesores/${profData.n.replace(/\s/g, '-')}-${profData.a.replace(/\s/g, '-')}_${profData.i}" target="_blank">Ver en MisProfesores</a>
+                                                        </div>
+                                                </div>`;
+                                        }
+                                        profHTML += `</div>`;
+
+                                        gDiv.innerHTML = `
+                    <div class="group-header">
+                        <div><b>Grupo ${g.grupo}</b> (${cuposLabel}) ${estadoBadge}</div>
+                        <button style="padding: 2px 6px; font-size: 10px;">${isSelected ? '✕' : '+'}</button>
+                    </div>
+                    ${profHTML}
+                    <div style="font-size:10px; color:var(--text-muted);">${formatHours.join('<br>')}</div>
+                `;
+
+                                        gDiv.addEventListener('click', (e) => {
+                                                e.stopPropagation();
+                                                toggleSelection(curso.id, curso.nombre, g);
+                                        });
+
+                                        groupCont.appendChild(gDiv);
+                                });
+
+                                box.appendChild(groupCont);
+
+                                const colorToggle = box.querySelector('.color-picker-toggle');
+                                const colorPicker = box.querySelector('.course-color-picker');
+                                if (colorToggle && colorPicker) {
+                                        colorToggle.addEventListener('click', (e) => {
+                                                e.stopPropagation();
+                                                colorPicker.click();
+                                        });
+
+                                        colorPicker.addEventListener('click', (e) => {
+                                                e.stopPropagation();
+                                        });
+
+                                        colorPicker.addEventListener('change', (e) => {
+                                                e.stopPropagation();
+                                                cambiarColorCurso(curso.id, e.target.value);
+                                        });
+                                }
+
+                                box.addEventListener('click', () => {
+                                        box.classList.toggle('expanded');
+                                        if (box.classList.contains('expanded')) expandedCourses.add(curso.id);
+                                        else expandedCourses.delete(curso.id);
+                                });
+
+                                box.addEventListener('mouseenter', () => mostrarRutas(datosPlan.requisitos));
+                                box.addEventListener('mouseleave', quitarRutas);
+
+                                container.appendChild(box);
+                        });
+                }
+
+                function mostrarRutas(requisitos) {
+                        if (!requisitos || requisitos.length === 0) return;
+                        document.querySelectorAll('.course-box').forEach(box => {
+                                if (requisitos.includes(box.dataset.id)) {
+                                        box.classList.add('is-req');
+                                }
+                        });
+                }
+
+                function quitarRutas() {
+                        document.querySelectorAll('.course-box').forEach(box => box.classList.remove('is-req'));
+                }
+
+                function toggleSelection(cursoId, cursoNombre, grupoObj) {
+                        const idx = selectedGroups.findIndex(s => s.cursoId === cursoId && s.grupo === grupoObj.grupo);
+
+                        if (idx > -1) {
+                                selectedGroups.splice(idx, 1);
+                        } else {
+                                const existenteIdx = selectedGroups.findIndex(s => s.cursoId === cursoId);
+                                if (existenteIdx > -1) selectedGroups.splice(existenteIdx, 1);
+
+                                selectedGroups.push({
+                                        cursoId,
+                                        nombre: cursoNombre,
+                                        grupo: grupoObj.grupo,
+                                        profesor: grupoObj.profesor,
+                                        horarios: grupoObj.horarios
+                                });
+                        }
+                        saveData();
+                }
+
+                function drawRows() {
+                        const tl = document.getElementById('time-labels');
+                        const calendar = document.querySelector('.calendar');
+                        const header = document.querySelector('.day-column .day-header');
+                        const headerHeight = header ? header.getBoundingClientRect().height : 0;
+                        const calendarHeight = calendar ? calendar.getBoundingClientRect().height : 0;
+                        const usableHeight = Math.max(calendarHeight - headerHeight, 1);
+                        tl.innerHTML = '';
+                        for (let h = H_START; h <= H_END; h++) {
+                                const topPx = headerHeight + ((h - H_START) / TOTAL_HOURS) * usableHeight;
+                                const lbl = document.createElement('div');
+                                lbl.className = 'time-label';
+                                lbl.textContent = formatHourLabel(h);
+                                tl.appendChild(lbl);
+                                const labelHeight = lbl.getBoundingClientRect().height;
+                                const adjustedTop = h === H_END
+                                        ? Math.min(topPx, headerHeight + usableHeight - labelHeight / 2)
+                                        : topPx;
+                                lbl.style.top = `${adjustedTop}px`;
+                                if (h === H_END) lbl.style.display = 'none';
+                        }
+                }
+
+                function mostrarAlertaHorario(mensaje) {
+                        const alerta = document.getElementById('schedule-alert');
+                        if (!alerta) return;
+                        alerta.textContent = mensaje;
+                        alerta.classList.add('visible');
+                        clearTimeout(mostrarAlertaHorario.timeoutId);
+                        mostrarAlertaHorario.timeoutId = setTimeout(() => {
+                                alerta.classList.remove('visible');
+                                alerta.textContent = '';
+                        }, 4000);
+                }
+
+                function renderSchedule() {
+                        const days = ['L', 'K', 'M', 'J', 'V', 'S'];
+                        let huboConflicto = false;
+                        const bloquesPorDia = {};
+
+                        days.forEach(d => {
+                                const col = document.getElementById(`day-${d}`);
+                                Array.from(col.children).forEach(child => {
+                                        if (!child.classList.contains('day-header')) child.remove();
+                                });
+                                bloquesPorDia[d] = [];
+                        });
+
+                        selectedGroups.forEach(sel => {
+                                const bgColor = getCourseColor(sel.cursoId);
+                                const textColor = getContrastTextColor(bgColor);
+
+                                sel.horarios.forEach(hStr => {
+                                        const match = hStr.match(/^([LKMJVS])\s+(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})(?:\s*\((.*?)\))?/);
+                                        if (match) {
+                                                const dia = match[1];
+                                                const hIni = parseInt(match[2]) + parseInt(match[3]) / 60;
+                                                const hFin = parseInt(match[4]) + parseInt(match[5]) / 60;
+
+                                                const topPercent = VERTICAL_PADDING_PERCENT + ((hIni - H_START) / TOTAL_HOURS) * USABLE_HEIGHT_PERCENT;
+                                                const heightPercent = ((hFin - hIni) / TOTAL_HOURS) * USABLE_HEIGHT_PERCENT;
+
+                                                const col = document.getElementById(`day-${dia}`);
+                                                if (col) {
+                                                        const existingBlocks = bloquesPorDia[dia] || [];
+                                                        let isConflict = false;
+                                                        existingBlocks.forEach(existing => {
+                                                                if (hIni < existing.end && hFin > existing.start) {
+                                                                        isConflict = true;
+                                                                        existing.conflict = true;
+                                                                        huboConflicto = true;
+                                                                }
+                                                        });
+                                                        if (isConflict) {
+                                                                huboConflicto = true;
+                                                        }
+
+                                                        const header = col.querySelector('.day-header');
+                                                        const headerHeight = header ? header.getBoundingClientRect().height : 0;
+                                                        const colRect = col.getBoundingClientRect();
+                                                        const contentHeight = Math.max(colRect.height - headerHeight, 1);
+                                                        const topPx = ((hIni - H_START) / TOTAL_HOURS) * contentHeight;
+                                                        const heightPx = ((hFin - hIni) / TOTAL_HOURS) * contentHeight;
+
+                                                        const block = document.createElement('div');
+                                                        block.className = 'event-block';
+                                                        if (isConflict) block.classList.add('conflict');
+                                                        block.style.top = `${headerHeight + topPx}px`;
+                                                        block.style.height = `${Math.max(heightPx, 20)}px`;
+                                                        block.style.backgroundColor = bgColor;
+                                                        block.style.color = textColor;
+
+                                                        const displayTime = formatHourRange(
+                                                                parseInt(match[2], 10),
+                                                                parseInt(match[3], 10),
+                                                                parseInt(match[4], 10),
+                                                                parseInt(match[5], 10)
+                                                        );
+
+                                                        const conflictBadge = isConflict ? '<span class="conflict-badge">⚠ Conflicto</span>' : '';
+
+                                                        const cursoOf = ofertaData.find(c => c.id === sel.cursoId) || null;
+                                                        const grupoInfo = cursoOf?.grupos?.find(g => String(g.grupo) === String(sel.grupo));
+                                                        let tagsHTML = '';
+                                                        if (grupoInfo) {
+                                                                const estadoLower = (grupoInfo.estado || '').toLowerCase();
+                                                                if (estadoLower.includes('semipresencial')) tagsHTML += '<span class="event-tag semi">Semi</span>';
+                                                                if (estadoLower.includes('virtual')) tagsHTML += '<span class="event-tag virt">Virt</span>';
+                                                                if (estadoLower.includes('asist') || estadoLower.includes('asis') || estadoLower.includes('asistid')) tagsHTML += '<span class="event-tag asis">Asis</span>';
+                                                        }
+
+                                                        block.innerHTML = `
+                                                        ${conflictBadge}
+                                                        <div class="event-block-header">
+                                                            <span class="e-code">${sel.nombre}</span>
+                                                            <div class="event-block-badges">${tagsHTML}</div>
+                                                        </div>
+                                                        <span class="e-prof">${sel.profesor}</span>
+                                                        <span class="e-prof">${displayTime} | ${match[6] ? match[6] : ''}</span>
+                                                `;
+
+                                                        block.addEventListener('click', (e) => {
+                                                                e.stopPropagation();
+                                                                openColorPickerForCourse(sel.cursoId, block);
+                                                        });
+                                                        col.appendChild(block);
+                                                        bloquesPorDia[dia].push({ start: hIni, end: hFin, conflict: isConflict });
+                                                }
+                                        }
+                                });
+                        });
+
+                        if (huboConflicto) {
+                                mostrarAlertaHorario('Se detectó un conflicto de horario. Favor revisar el curso marcado.');
+                        }
+                }
+
+                function abrirTutorial() {
+                        document.getElementById('modal-tutorial').style.display = 'flex';
+                }
+
+                function cerrarTutorial() {
+                        document.getElementById('modal-tutorial').style.display = 'none';
+                }
+
+                function abrirPlanEstudios() {
+                        if (planData.length === 0) {
+                                alert('Primero selecciona una Carrera.');
+                                return;
+                        }
+                        document.getElementById('modal-plan').style.display = 'flex';
+                        renderizarPlanEstudios();
+                }
+
+                function cerrarPlanEstudios() {
+                        document.getElementById('modal-plan').style.display = 'none';
+                        document.getElementById('plan-lines').innerHTML = '';
+                }
+
+                function openColorPickerForCourse(cursoId, block) {
+                        const picker = document.getElementById('block-color-picker');
+                        if (!picker) return;
+                        const color = getCourseColor(cursoId);
+                        picker.value = color;
+                        picker.dataset.cursoId = cursoId;
+
+                        if (block && block.getBoundingClientRect) {
+                                const rect = block.getBoundingClientRect();
+                                picker.classList.remove('hidden');
+                                picker.style.position = 'absolute';
+                                picker.style.display = 'block';
+                                picker.style.pointerEvents = 'auto';
+                                picker.style.opacity = '0';
+                                picker.style.zIndex = '10000';
+                                picker.style.width = '34px';
+                                picker.style.height = '34px';
+                                picker.style.left = `${window.scrollX + rect.right - 34}px`;
+                                picker.style.top = `${window.scrollY + rect.top + 4}px`;
+                        }
+
+                        picker.focus({ preventScroll: true });
+                        picker.click();
+                }
+
+                function renderizarPlanEstudios() {
+                        const grid = document.getElementById('plan-grid');
+                        const svg = document.getElementById('plan-lines');
+                        grid.innerHTML = '';
+                        svg.innerHTML = '';
+
+                        const grupos = {};
+                        planData.forEach(c => {
+                                const key = c.semestre !== undefined ? c.semestre : 0;
+                                if (!grupos[key]) grupos[key] = { label: c.semestreLabel || `Semestre ${key}`, cursos: [] };
+                                grupos[key].cursos.push(c);
+                        });
+
+                        const clavesOrdenadas = Object.keys(grupos).map(Number).sort((a, b) => a - b);
+
+                        clavesOrdenadas.forEach(key => {
+                                const grupo = grupos[key];
+                                const colDiv = document.createElement('div');
+                                colDiv.className = 'plan-col';
+                                colDiv.innerHTML = `<div class="col-title">${grupo.label}</div>`;
+
+                                grupo.cursos.forEach(curso => {
+                                        const box = document.createElement('div');
+                                        box.className = 'modal-course-box';
+                                        box.id = `modal-course-${curso.id}`;
+
+                                        const bgColor = getCourseColor(curso.id);
+                                        const textColor = getContrastTextColor(bgColor);
+                                        box.style.borderLeft = `4px solid ${bgColor}`;
+
+                                        box.innerHTML = `
+                    <div class="name">${curso.nombre}</div>
+                    <div class="code" style="color: ${textColor}">(${curso.id})</div>
+                `;
+
+                                        box.addEventListener('mouseenter', () => mostrarConexiones(curso));
+                                        box.addEventListener('mouseleave', quitarConexiones);
+
+                                        colDiv.appendChild(box);
+                                });
+                                grid.appendChild(colDiv);
+                        });
+                }
+
+                function mostrarConexiones(curso) {
+                        quitarConexiones();
+
+                        const svg = document.getElementById('plan-lines');
+                        const container = document.getElementById('modal-scroll-container');
+                        const sourceBox = document.getElementById(`modal-course-${curso.id}`);
+                        if (!sourceBox) return;
+
+                        const cRect = container.getBoundingClientRect();
+
+                        function drawLine(targetId, color, isDashed, highlightClass) {
+                                const targetBox = document.getElementById(`modal-course-${targetId}`);
+                                if (!targetBox) return;
+
+                                targetBox.classList.add(highlightClass);
+
+                                const sRect = sourceBox.getBoundingClientRect();
+                                const tRect = targetBox.getBoundingClientRect();
+
+                                const sx = sRect.left + sRect.width / 2 - cRect.left + container.scrollLeft;
+                                const sy = sRect.top + sRect.height / 2 - cRect.top + container.scrollTop;
+                                const tx = tRect.left + tRect.width / 2 - cRect.left + container.scrollLeft;
+                                const ty = tRect.top + tRect.height / 2 - cRect.top + container.scrollTop;
+
+                                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                                const d = `M ${sx} ${sy} C ${(sx + tx) / 2} ${sy}, ${(sx + tx) / 2} ${ty}, ${tx} ${ty}`;
+                                path.setAttribute('d', d);
+                                path.setAttribute('stroke', color);
+                                path.setAttribute('stroke-width', '2');
+                                path.setAttribute('fill', 'none');
+                                path.setAttribute('opacity', '0.8');
+                                if (isDashed) path.setAttribute('stroke-dasharray', '5,5');
+
+                                svg.appendChild(path);
+                        }
+
+                        (curso.requisitos || []).forEach(req => drawLine(req, 'var(--req-color)', false, 'highlight-req'));
+                        (curso.corequisitos || []).forEach(req => drawLine(req, 'var(--coreq-color)', true, 'highlight-req'));
+                        (curso.es_requisito_de || []).forEach(req => drawLine(req, 'var(--abre-color)', false, 'highlight-abre'));
+                }
+
+                function quitarConexiones() {
+                        document.getElementById('plan-lines').innerHTML = '';
+                        document.querySelectorAll('.modal-course-box').forEach(el => {
+                                el.classList.remove('highlight-req', 'highlight-abre');
+                        });
+                }
+        </script>
+</body>
+
+</html>
