@@ -2193,6 +2193,12 @@ mostrarMatricula();`;
                         quitarConexiones();
 
                         const svg = document.getElementById('plan-lines');
+                        const grid = document.getElementById('plan-grid');
+                        if(svg && grid) {
+                                svg.style.width = grid.scrollWidth + 'px';
+                                svg.style.height = grid.scrollHeight + 'px';
+                        }
+                        
                         const container = document.getElementById('modal-scroll-container');
                         const sourceBox = document.getElementById(`modal-course-${curso.id}`);
                         if (!sourceBox) return;
