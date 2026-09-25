@@ -22,11 +22,22 @@
                         --link-hover: #990ee9;
                 }
 
+                @font-face {
+                        font-family: 'Minecraft';
+                        src: url('https://cdn.jsdelivr.net/gh/IdreesInc/Monocraft@main/dist/Monocraft-ttf/Monocraft.ttf') format('truetype');
+                        font-weight: normal;
+                        font-style: normal;
+                }
+
                 * {
                         box-sizing: border-box;
                         margin: 0;
                         padding: 0;
-                        font-family: sans-serif;
+                        font-family: 'Minecraft', 'sans-serif';
+                        image-rendering: pixelated;
+                        font-smooth: never;
+                        -webkit-font-smoothing: none;
+      
                 }
 
                 body {
