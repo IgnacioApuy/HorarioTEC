@@ -27,7 +27,7 @@
                         margin: 0;
                         padding: 0;
                         font-family: sans-serif;
-      
+
                 }
 
                 body {
@@ -60,6 +60,34 @@
                         align-items: center;
                 }
 
+                .actions-dropdown {
+                        position: relative;
+                }
+
+                .actions-menu {
+                        position: absolute;
+                        top: calc(100% + 6px);
+                        right: 0;
+                        z-index: 100;
+                        min-width: 160px;
+                        padding: 6px;
+                        background-color: var(--surface-color);
+                        border: 1px solid var(--border);
+                        border-radius: 6px;
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+                        flex-direction: column;
+                        gap: 6px;
+                }
+
+                .actions-menu:not([hidden]) {
+                        display: flex;
+                }
+
+                .actions-menu button {
+                        width: 100%;
+                        text-align: left;
+                }
+
                 select,
                 input[type="file"] {
                         font-size: 12px;
@@ -81,13 +109,71 @@
                         font-size: 13px;
                 }
 
+                button:hover {
+                        filter: brightness(110%);
+                        transform: scale(103%);
+                }
+
+                button:active {
+                        filter: brightness(78%);
+                        transform: scale(97%);
+                }
+
                 button.btn-danger {
                         background-color: var(--danger);
+                }
+
+                #btn-matricular {
+                        background-color: #28a745;
                 }
 
                 #btn-tutorial {
                         background-color: #0bdef5;
                         color: #000000;
+                }
+
+                #btn-variante {
+                        background-color: #4b5563;
+                        color: #ffffff;
+                        min-width: 96px;
+                }
+
+                #btn-variante.btnV1 {
+                        background-color: #147a99;
+                }
+
+                #btn-variante.btnV2 {
+                        background-color: #17af30;
+                }
+
+                #btn-variante.btnV3 {
+                        background-color: #142c99;
+                }
+
+                #btn-variante.btnV4 {
+                        background-color: #5d1499;
+                }
+
+
+                #btn-respaldo {
+                        background-color: #0b40a3;
+                        color: #ffffff;
+                }
+
+                #btn-acciones {
+                        background-color: #28a745;
+                        color: #ffffff;
+                }
+
+                .backup-actions {
+                        display: flex;
+                        gap: 12px;
+                        margin-top: 15px;
+                }
+
+                .backup-actions button {
+                        flex: 1;
+                        padding: 10px 12px;
                 }
 
                 h3 {
@@ -156,6 +242,15 @@
                 .sede-selector button:hover {
                         border-color: var(--accent);
                         color: var(--accent);
+                }
+
+                .variant-control {
+                        padding: 10px 15px;
+                        border-bottom: 1px solid var(--border);
+                }
+
+                #btn-variante {
+                        width: 100%;
                 }
 
                 .plan-section {
@@ -841,10 +936,21 @@
                         <button id="btn-plan" onclick="abrirPlanEstudios()" style="display: none;">Plan de
                                 Estudios</button>
                         <button id="btn-wait" onclick=style="display: none;">Cargando...</button>
-                        <button id="btn-limpiar" class="btn-danger" onclick="clearData()" style="display: none;">Limpiar
-                                Datos</button>
-                        <button id="btn-matricular" onclick="abrirModalMatricular()"
-                                style="display: none; background-color: #28a745; color: white;">Matricular</button>
+                        <div class="actions-dropdown">
+                                <button id="btn-acciones" type="button" aria-haspopup="true" aria-expanded="false"
+                                        aria-controls="actions-menu" onclick="toggleMenuAcciones()">Acciones</button>
+                                <div id="actions-menu" class="actions-menu" role="menu" hidden>
+                                        <button id="btn-respaldo" type="button" role="menuitem"
+                                                onclick="abrirModalRespaldo(); cerrarMenuAcciones()">Respaldo</button>
+                                        <button id="btn-limpiar" class="btn-danger" type="button" role="menuitem"
+                                                onclick="clearData(); cerrarMenuAcciones()"
+                                                style="display: none;">Limpiar
+                                                Datos</button>
+                                        <button id="btn-matricular" type="button" role="menuitem"
+                                                onclick="abrirModalMatricular(); cerrarMenuAcciones()"
+                                                style="display: none;">Matricular →</button>
+                                </div>
+                        </div>
                 </div>
         </header>
 
@@ -860,6 +966,9 @@
                                         <option value="ALAJUELA">ALAJUELA</option>
                                 </select>
                                 <button type="button" id="cupo-toggle">Cupos: Sí</button>
+                        </div>
+                        <div id="variant-control" class="variant-control" style="display: none;">
+                                <button id="btn-variante" onclick="cambiarVariante()">Variante 1</button>
                         </div>
                         <div class="plan-section" id="plan-container"></div>
                         <div class="plan-credit">
@@ -893,7 +1002,8 @@
                 </div>
         </div>
 
-        <input id="block-color-picker" type="color" class="course-color-picker hidden" style="position:absolute;left:-9999px;top:-9999px;">
+        <input id="block-color-picker" type="color" class="course-color-picker hidden"
+                style="position:absolute;left:-9999px;top:-9999px;">
 
         <div id="modal-tutorial" class="modal">
                 <div class="modal-header">
@@ -928,19 +1038,29 @@
                         <p>&bullet; También se puede filtrar por sede y cupos disponibles.</p>
                         <p>&bullet; Selecciona cualquier curso y luego selecciona un horario. Este se mostrará en el
                                 horario a la derecha.</p>
-                        <p>&bullet; Arriba a la derecha se encuentran diferentes botones una vez cargados los datos.</p>
+                        <p>&bullet; Arriba a la derecha se encuentran las acciones disponibles. La opción Variante está
+                                debajo del selector de Sede.</p>
                         <p>&bullet; En el Plan de Estudios puedes colocar el mouse sobre los cursos para ver sus
                                 requisitos y corequisitos.</p>
                         <p>&bullet; En Matricular, puedes mostrar los cursos que seleccionaste en la página de
                                 matrícula.</p>
-                        <p>&bullet; También puedes eliminar los datos en el botón rojo.</p>
+                        <p>&bullet; Con el botón Variante # puedes alternar entre 4 horarios distintos (1 a 4). Todas
+                                las
+                                variantes comparten la carrera y el semestre cargados, pero cada una tiene sus propios
+                                grupos seleccionados y su propia cuadrícula.</p>
+                        <p>&bullet; En Acciones, Respaldo te permite exportar tus datos guardados a un archivo CSV y
+                                volver
+                                a
+                                importarlos después (copia de seguridad o para pasarlos a otro navegador).</p>
+                        <p>&bullet; En Acciones también puedes eliminar los datos o abrir Matricular cuando haya datos
+                                de semestre cargados.</p>
                         <p>&bullet; El plan, semestre y cursos seleccionados se guardan aunque salgas de la página.</p>
                 </div>
         </div>
 
         <div id="modal-plan" class="modal">
                 <div class="modal-header">
-                        <h3>Plan de Estudios Completo</h3>
+                        <h3>Plan de Estudios</h3>
                         <div class="legend">
                                 <span>
                                         <div class="legend-color" style="background: var(--req-color);"></div>
@@ -959,6 +1079,29 @@
                 <div class="plan-grid-container" id="modal-scroll-container">
                         <svg id="plan-lines"></svg>
                         <div class="plan-grid" id="plan-grid"></div>
+                </div>
+        </div>
+
+        <div id="modal-respaldo" class="modal">
+                <div class="modal-header">
+                        <h3>Respaldo de datos (CSV)</h3>
+                        <button onclick="cerrarModalRespaldo()">Cerrar</button>
+                </div>
+                <div class="modal-content">
+                        <p>Exporta todo lo que esta página tiene guardado en tu navegador (plan de estudios, semestre,
+                                grupos seleccionados de las 4 variantes, sede, cupos, colores y carrera) a un archivo
+                                CSV.</p>
+                        <p>Importar un CSV <b>reemplaza</b> los datos guardados actualmente por los del archivo.</p>
+                        <p><i>Nota: el CSV está pensado como copia de seguridad. Si lo abres y lo guardas de nuevo desde
+                                        Excel, las celdas largas pueden truncarse y el archivo dejaría de ser
+                                        válido.</i></p>
+                        <div class="backup-actions">
+                                <button type="button" onclick="exportarCSV()">Exportar CSV</button>
+                                <button type="button"
+                                        onclick="document.getElementById('respaldo-file').click()">Importar
+                                        CSV</button>
+                        </div>
+                        <input type="file" id="respaldo-file" accept=".csv,text/csv" style="display: none;">
                 </div>
         </div>
 
@@ -989,6 +1132,7 @@
                         <br>
                         <p>Se mostrarán los cursos que hayas seleccionado y podrás matricularlos con mayor facilidad
                                 (El script no puede matricularlos automáticamente).</p>
+                        <p id="matricular-variante" style="margin-top: 10px; color: var(--text-muted);"></p>
 
 
                         <textarea id="codigo-matricula" class="matricula-textarea" readonly></textarea>
@@ -999,8 +1143,20 @@
         </div>
 
         <script>
-                const APP_VERSION = 'v1.0';
+                const APP_VERSION = 'v1.1';
                 const VERSION_STORAGE_KEY = 'tec_version';
+                const VARIANTES_STORAGE_KEY = 'tec_variantes';
+                const TOTAL_VARIANTES = 4;
+                const BACKUP_KEYS = [
+                        'tec_plan',
+                        'tec_oferta',
+                        'tec_selections',
+                        VARIANTES_STORAGE_KEY,
+                        'tec_sede',
+                        'tec_cupo',
+                        'tec_carrera_seleccionada',
+                        'tec_course_colors'
+                ];
                 const PROXY_URL = "https://soft-base-e57d.ignacioapuy.workers.dev?url=";
 
                 const CARRERAS_DIC = [
@@ -1089,6 +1245,10 @@
                 let planData = [];
                 let ofertaData = [];
                 let selectedGroups = [];
+                // Variante 1 = datos originales (tec_selections). Variantes 2-4 se guardan en tec_variantes.
+                // selectedGroups siempre apunta a la variante activa.
+                let variantes = { 1: [], 2: [], 3: [], 4: [] };
+                let varianteActual = 1;
                 let expandedCourses = new Set();
                 let sedeSeleccionada = 'CARTAGO';
                 let mostrarSoloConCupo = false;
@@ -1153,6 +1313,32 @@
                         document.getElementById('btn-plan').style.display = planCargado ? 'inline-block' : 'none';
                         document.getElementById('btn-wait').style.display = planCargado ? 'none' : 'none';
 
+                        const variantControl = document.getElementById('variant-control');
+                        const btnVariante = document.getElementById('btn-variante');
+                        variantControl.style.display = tieneDatos ? 'block' : 'none';
+                        switch (varianteActual) {
+                                case 1:
+                                        btnVariante.textContent = `- Variante ${varianteActual} -`;
+                                        btnVariante.classList = "btnV1";
+                                        break;
+
+                                case 2:
+                                        btnVariante.textContent = `-- Variante ${varianteActual} --`;
+                                        btnVariante.classList = "btnV2";
+                                        break;
+
+                                case 3:
+                                        btnVariante.textContent = `--- Variante ${varianteActual} ---`;
+                                        btnVariante.classList = "btnV3";
+                                        break;
+
+                                case 4:
+                                        btnVariante.textContent = `---- Variante ${varianteActual} ----`;
+                                        btnVariante.classList = "btnV4";
+                                        break;
+
+                        }
+
                         const fileInput = document.getElementById('semestre-file');
                         const semestreLabel = document.getElementById('semestre-label');
 
@@ -1168,6 +1354,27 @@
                                 semestreLabel.textContent = 'Semestre:';
                         }
                 }
+
+                function toggleMenuAcciones() {
+                        const menu = document.getElementById('actions-menu');
+                        const button = document.getElementById('btn-acciones');
+                        const isOpening = menu.hidden;
+                        menu.hidden = !isOpening;
+                        button.setAttribute('aria-expanded', String(isOpening));
+                }
+
+                function cerrarMenuAcciones() {
+                        document.getElementById('actions-menu').hidden = true;
+                        document.getElementById('btn-acciones').setAttribute('aria-expanded', 'false');
+                }
+
+                document.addEventListener('click', (event) => {
+                        if (!event.target.closest('.actions-dropdown')) cerrarMenuAcciones();
+                });
+
+                document.addEventListener('keydown', (event) => {
+                        if (event.key === 'Escape') cerrarMenuAcciones();
+                });
 
                 async function cargarMisProfesores() {
                         try {
@@ -1205,7 +1412,10 @@
                                 const storedNumber = versionToNumber(storedVersion);
 
                                 if (!storedVersion || storedNumber < currentNumber) {
-                                        alert(`Se han hecho cambios importantes, favor limpiar datos antes de continuar.\nVersión ${APP_VERSION}`);
+                                        alert(`Novedades de la versión ${APP_VERSION}:\n\n` +
+                                                `• Variantes de horario: el botón "Variante" alterna entre 4 horarios distintos.\n` +
+                                                `• Respaldo: el nuevo botón "Respaldo" permite exportar e importar tus datos guardados como CSV.\n\n` +
+                                                `No es necesario limpiar datos.`);
                                         localStorage.setItem(VERSION_STORAGE_KEY, APP_VERSION);
                                 }
                         } catch (e) {
@@ -1277,6 +1487,11 @@ async function mostrarMatricula() {
 }
 mostrarMatricula();`;
                                 inputCodigo.value = scriptStr;
+                        }
+
+                        const notaVariante = document.getElementById('matricular-variante');
+                        if (notaVariante) {
+                                notaVariante.textContent = `Variante actual: ${varianteActual}. El script se genera con los grupos seleccionados en esta variante.`;
                         }
 
                         modal.style.display = 'flex';
@@ -1645,12 +1860,20 @@ mostrarMatricula();`;
                                 });
                         });
                         selectedGroups = selectedGroups.filter(sel => visibles.has(`${sel.cursoId}:${sel.grupo}`));
+                        variantes[varianteActual] = selectedGroups;
+                        for (let v = 1; v <= TOTAL_VARIANTES; v++) {
+                                if (v === varianteActual) continue;
+                                variantes[v] = (variantes[v] || []).filter(sel => visibles.has(`${sel.cursoId}:${sel.grupo}`));
+                        }
                 }
 
                 function saveData() {
                         localStorage.setItem('tec_plan', JSON.stringify(planData));
                         localStorage.setItem('tec_oferta', JSON.stringify(ofertaData));
-                        localStorage.setItem('tec_selections', JSON.stringify(selectedGroups));
+                        variantes[varianteActual] = selectedGroups;
+                        // La variante 1 sigue usando la entrada original; las demás van en una entrada nueva.
+                        localStorage.setItem('tec_selections', JSON.stringify(variantes[1]));
+                        guardarVariantes();
                         localStorage.setItem('tec_sede', sedeSeleccionada);
                         localStorage.setItem('tec_cupo', mostrarSoloConCupo ? 'SI' : 'NO');
                         localStorage.setItem(COURSE_COLORS_STORAGE_KEY, JSON.stringify(colorMap));
@@ -1661,6 +1884,31 @@ mostrarMatricula();`;
                         actualizarBotones();
                 }
 
+                function guardarVariantes() {
+                        try {
+                                const hayExtras = [2, 3, 4].some(v => (variantes[v] || []).length > 0);
+                                if (!hayExtras && varianteActual === 1) {
+                                        // Sin datos de variantes: no se crea ni se mantiene la entrada nueva.
+                                        localStorage.removeItem(VARIANTES_STORAGE_KEY);
+                                        return;
+                                }
+                                localStorage.setItem(VARIANTES_STORAGE_KEY, JSON.stringify({
+                                        actual: varianteActual,
+                                        datos: { 2: variantes[2], 3: variantes[3], 4: variantes[4] }
+                                }));
+                        } catch (e) {
+                                console.warn('No se pudieron guardar las variantes.', e);
+                        }
+                }
+
+                function cambiarVariante() {
+                        variantes[varianteActual] = selectedGroups;
+                        varianteActual = (varianteActual % TOTAL_VARIANTES) + 1;
+                        selectedGroups = variantes[varianteActual] || [];
+                        variantes[varianteActual] = selectedGroups;
+                        saveData();
+                }
+
                 function loadStorage() {
                         const p = localStorage.getItem('tec_plan');
                         const o = localStorage.getItem('tec_oferta');
@@ -1669,6 +1917,7 @@ mostrarMatricula();`;
                         const cupoGuardado = localStorage.getItem('tec_cupo');
                         const carreraGuardada = localStorage.getItem('tec_carrera_seleccionada');
                         const coloresGuardados = localStorage.getItem(COURSE_COLORS_STORAGE_KEY);
+                        const variantesGuardadas = localStorage.getItem(VARIANTES_STORAGE_KEY);
 
                         colorMap = {};
                         if (coloresGuardados) {
@@ -1685,7 +1934,22 @@ mostrarMatricula();`;
 
                         if (p) planData = JSON.parse(p);
                         if (o) ofertaData = JSON.parse(o);
-                        if (s) selectedGroups = JSON.parse(s);
+                        variantes = { 1: [], 2: [], 3: [], 4: [] };
+                        varianteActual = 1;
+                        if (s) variantes[1] = JSON.parse(s);
+                        if (variantesGuardadas) {
+                                try {
+                                        const vg = JSON.parse(variantesGuardadas);
+                                        [2, 3, 4].forEach(v => {
+                                                if (vg && vg.datos && Array.isArray(vg.datos[v])) variantes[v] = vg.datos[v];
+                                        });
+                                        const act = parseInt(vg && vg.actual, 10);
+                                        if (act >= 1 && act <= TOTAL_VARIANTES) varianteActual = act;
+                                } catch (e) {
+                                        console.warn('No se pudieron cargar las variantes guardadas.', e);
+                                }
+                        }
+                        selectedGroups = variantes[varianteActual];
                         if (sedeGuardada) sedeSeleccionada = sedeGuardada;
                         if (cupoGuardado) mostrarSoloConCupo = cupoGuardado === 'SI';
                         if (carreraGuardada) {
@@ -1731,6 +1995,7 @@ mostrarMatricula();`;
                                 localStorage.removeItem('tec_plan');
                                 localStorage.removeItem('tec_oferta');
                                 localStorage.removeItem('tec_selections');
+                                localStorage.removeItem(VARIANTES_STORAGE_KEY);
                                 localStorage.removeItem('tec_sede');
                                 localStorage.removeItem('tec_cupo');
                                 localStorage.removeItem('tec_carrera_seleccionada');
@@ -1739,6 +2004,8 @@ mostrarMatricula();`;
                                 console.warn('Error clearing localStorage keys', e);
                         }
                         planData = []; ofertaData = []; selectedGroups = [];
+                        variantes = { 1: [], 2: [], 3: [], 4: [] };
+                        varianteActual = 1;
                         expandedCourses.clear();
                         colorMap = {};
 
@@ -1817,7 +2084,7 @@ mostrarMatricula();`;
                     <div class="course-meta">
                         <span class="code" style="color: ${courseColor}">(${curso.id})</span>
                         <div class="course-color-controls">
-                            <button type="button" class="color-picker-toggle" data-course-id="${curso.id}" style="background-color: ${courseColor}; color: ${courseTextColor};" title="Cambiar color del curso" aria-label="Cambiar color del curso ${curso.id}">🎨</button>
+                            <button type="button" class="color-picker-toggle" data-course-id="${curso.id}" style="background-color: ${courseColor}; color: ${courseTextColor};" aria-label="Cambiar color del curso ${curso.id}">🎨</button>
                             <input type="color" class="course-color-picker hidden" data-course-id="${curso.id}" value="${courseColor}">
                         </div>
                     </div>
@@ -2099,6 +2366,193 @@ mostrarMatricula();`;
                         }
                 }
 
+                function abrirModalRespaldo() {
+                        document.getElementById('modal-respaldo').style.display = 'flex';
+                }
+
+                function cerrarModalRespaldo() {
+                        document.getElementById('modal-respaldo').style.display = 'none';
+                }
+
+                function csvEscapar(valor) {
+                        return '"' + String(valor).replace(/"/g, '""') + '"';
+                }
+
+                function exportarCSV() {
+                        const filas = [['clave', 'valor']];
+                        BACKUP_KEYS.forEach(clave => {
+                                const valor = localStorage.getItem(clave);
+                                if (valor !== null) filas.push([clave, valor]);
+                        });
+
+                        if (filas.length === 1) {
+                                alert('No hay datos guardados para exportar.');
+                                return;
+                        }
+
+                        const csv = '\uFEFF' + filas.map(f => f.map(csvEscapar).join(',')).join('\r\n');
+                        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                        const url = URL.createObjectURL(blob);
+                        const fecha = new Date().toISOString().slice(0, 10);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `horario-tec-respaldo-${fecha}.csv`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        setTimeout(() => URL.revokeObjectURL(url), 1000);
+                }
+
+                function parsearCSV(texto) {
+                        if (texto.charCodeAt(0) === 0xFEFF) texto = texto.slice(1);
+                        // Excel en español suele guardar con ";" como separador.
+                        const sep = /^"?clave"?;/i.test(texto) ? ';' : ',';
+                        const filas = [];
+                        let fila = [], campo = '', enComillas = false;
+
+                        for (let i = 0; i < texto.length; i++) {
+                                const c = texto[i];
+                                if (enComillas) {
+                                        if (c === '"') {
+                                                if (texto[i + 1] === '"') { campo += '"'; i++; }
+                                                else enComillas = false;
+                                        } else {
+                                                campo += c;
+                                        }
+                                } else if (c === '"') {
+                                        enComillas = true;
+                                } else if (c === sep) {
+                                        fila.push(campo); campo = '';
+                                } else if (c === '\n' || c === '\r') {
+                                        if (c === '\r' && texto[i + 1] === '\n') i++;
+                                        fila.push(campo); campo = '';
+                                        if (!(fila.length === 1 && fila[0] === '')) filas.push(fila);
+                                        fila = [];
+                                } else {
+                                        campo += c;
+                                }
+                        }
+                        if (campo !== '' || fila.length) {
+                                fila.push(campo);
+                                filas.push(fila);
+                        }
+                        return filas;
+                }
+
+                // Quita caracteres que permitirían inyectar HTML, ya que estos datos se muestran con innerHTML.
+                function limpiarImportado(valor) {
+                        if (typeof valor === 'string') return valor.replace(/[<>"]/g, '');
+                        if (Array.isArray(valor)) return valor.map(limpiarImportado);
+                        if (valor && typeof valor === 'object') {
+                                const out = {};
+                                Object.keys(valor).forEach(k => { out[limpiarImportado(k)] = limpiarImportado(valor[k]); });
+                                return out;
+                        }
+                        return valor;
+                }
+
+                function esObjeto(v) {
+                        return v !== null && typeof v === 'object' && !Array.isArray(v);
+                }
+
+                function seleccionValida(sel) {
+                        return esObjeto(sel) && typeof sel.cursoId === 'string' && sel.grupo !== undefined
+                                && Array.isArray(sel.horarios);
+                }
+
+                // Devuelve el valor ya validado y limpio (string listo para guardar), o lanza un Error.
+                function validarEntradaImportada(clave, valor) {
+                        const esJSON = ['tec_plan', 'tec_oferta', 'tec_selections', VARIANTES_STORAGE_KEY, 'tec_course_colors'].includes(clave);
+                        if (!esJSON) {
+                                const texto = limpiarImportado(valor);
+                                if (clave === 'tec_sede') {
+                                        const opciones = Array.from(document.getElementById('sede-selector').options).map(o => o.value);
+                                        if (!opciones.includes(texto)) throw new Error('sede desconocida');
+                                } else if (clave === 'tec_cupo') {
+                                        if (texto !== 'SI' && texto !== 'NO') throw new Error('valor inválido');
+                                } else if (clave === 'tec_carrera_seleccionada') {
+                                        if (!CARRERAS_DIC.some(c => c.url === texto)) throw new Error('carrera desconocida');
+                                }
+                                return texto;
+                        }
+
+                        const dato = limpiarImportado(JSON.parse(valor));
+
+                        if (clave === 'tec_plan') {
+                                const ok = Array.isArray(dato) && dato.every(c => esObjeto(c) && typeof c.id === 'string'
+                                        && ['requisitos', 'corequisitos', 'es_requisito_de', 'es_corequisito_de'].every(k => Array.isArray(c[k])));
+                                if (!ok) throw new Error('estructura inválida');
+                        } else if (clave === 'tec_oferta') {
+                                const ok = Array.isArray(dato) && dato.every(c => esObjeto(c) && typeof c.id === 'string' && Array.isArray(c.grupos)
+                                        && c.grupos.every(g => esObjeto(g) && g.grupo !== undefined && Array.isArray(g.horarios)
+                                                && typeof g.estado === 'string' && typeof g.profesor === 'string'));
+                                if (!ok) throw new Error('estructura inválida');
+                        } else if (clave === 'tec_selections') {
+                                if (!Array.isArray(dato) || !dato.every(seleccionValida)) throw new Error('estructura inválida');
+                        } else if (clave === VARIANTES_STORAGE_KEY) {
+                                const ok = esObjeto(dato) && esObjeto(dato.datos)
+                                        && [2, 3, 4].every(v => dato.datos[v] === undefined || (Array.isArray(dato.datos[v]) && dato.datos[v].every(seleccionValida)));
+                                if (!ok) throw new Error('estructura inválida');
+                        } else if (clave === 'tec_course_colors') {
+                                if (!esObjeto(dato)) throw new Error('estructura inválida');
+                        }
+                        return JSON.stringify(dato);
+                }
+
+                function importarCSV(texto) {
+                        const filas = parsearCSV(texto);
+                        if (filas.length === 0 || String(filas[0][0]).trim().toLowerCase() !== 'clave') {
+                                alert('El archivo no tiene el formato esperado (primera columna "clave").');
+                                return;
+                        }
+
+                        const validados = {};
+                        const errores = [];
+                        filas.slice(1).forEach(fila => {
+                                const clave = String(fila[0] || '').trim();
+                                if (!BACKUP_KEYS.includes(clave)) return;
+                                try {
+                                        validados[clave] = validarEntradaImportada(clave, fila[1] === undefined ? '' : fila[1]);
+                                } catch (e) {
+                                        errores.push(`${clave}: ${e.message}`);
+                                }
+                        });
+
+                        if (errores.length > 0) {
+                                alert('No se importó nada porque el archivo tiene datos inválidos o dañados:\n\n' + errores.join('\n'));
+                                return;
+                        }
+
+                        const claves = Object.keys(validados);
+                        if (claves.length === 0) {
+                                alert('El archivo no contiene datos reconocidos para importar.');
+                                return;
+                        }
+
+                        if (!confirm(`Se importarán ${claves.length} entradas y se reemplazarán los datos guardados actualmente (incluidas las variantes). ¿Continuar?`)) {
+                                return;
+                        }
+
+                        try {
+                                BACKUP_KEYS.forEach(k => localStorage.removeItem(k));
+                                claves.forEach(k => localStorage.setItem(k, validados[k]));
+                        } catch (e) {
+                                alert('No se pudieron guardar los datos importados: ' + e.message);
+                                return;
+                        }
+                        window.location.reload();
+                }
+
+                document.getElementById('respaldo-file').addEventListener('change', function (e) {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = evt => importarCSV(String(evt.target.result || ''));
+                        reader.onerror = () => alert('No se pudo leer el archivo.');
+                        reader.readAsText(file, 'utf-8');
+                        e.target.value = '';
+                });
+
                 function abrirTutorial() {
                         document.getElementById('modal-tutorial').style.display = 'flex';
                 }
@@ -2195,11 +2649,11 @@ mostrarMatricula();`;
 
                         const svg = document.getElementById('plan-lines');
                         const grid = document.getElementById('plan-grid');
-                        if(svg && grid) {
+                        if (svg && grid) {
                                 svg.style.width = grid.scrollWidth + 'px';
                                 svg.style.height = grid.scrollHeight + 'px';
                         }
-                        
+
                         const container = document.getElementById('modal-scroll-container');
                         const sourceBox = document.getElementById(`modal-course-${curso.id}`);
                         if (!sourceBox) return;
