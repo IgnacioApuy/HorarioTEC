@@ -18,6 +18,7 @@
                         --req-color: #d97706;
                         --coreq-color: #0ea5e9;
                         --abre-color: #22c55e;
+                        --prereq-color: #22c55e;
                         --link-color: #3bdaf6;
                         --link-hover: #990ee9;
                 }
@@ -811,7 +812,8 @@
                         font-size: 10px;
                 }
 
-                #plan-lines {
+                #plan-lines,
+                #plan-lines-done {
                         position: absolute;
                         top: 0;
                         left: 0;
@@ -1087,6 +1089,7 @@
                         <button onclick="cerrarPlanEstudios()">Cerrar</button>
                 </div>
                 <div class="plan-grid-container" id="modal-scroll-container">
+                        <svg id="plan-lines-done"></svg>
                         <svg id="plan-lines"></svg>
                         <div class="plan-grid" id="plan-grid"></div>
                 </div>
@@ -2606,6 +2609,7 @@ mostrarMatricula();`;
                 function cerrarPlanEstudios() {
                         document.getElementById('modal-plan').style.display = 'none';
                         document.getElementById('plan-lines').innerHTML = '';
+                        document.getElementById('plan-lines-done').innerHTML = '';
                 }
 
                 function openColorPickerForCourse(cursoId, block) {
@@ -2674,6 +2678,7 @@ mostrarMatricula();`;
                                                 const done = box.classList.toggle('done');
                                                 if (done) planDone.add(curso.id); else planDone.delete(curso.id);
                                                 savePlanDone(planDone);
+                                                renderizarLineasSeleccionadas();
                                         });
 
                                         box.addEventListener('mouseenter', () => mostrarConexiones(curso));
@@ -2682,6 +2687,52 @@ mostrarMatricula();`;
                                         colDiv.appendChild(box);
                                 });
                                 grid.appendChild(colDiv);
+                        });
+
+                        renderizarLineasSeleccionadas();
+                }
+
+                // Líneas permanentes de los cursos seleccionados (grises): prerrequisitos en verde.
+                function renderizarLineasSeleccionadas() {
+                        const svg = document.getElementById('plan-lines-done');
+                        const grid = document.getElementById('plan-grid');
+                        const container = document.getElementById('modal-scroll-container');
+                        if (!svg || !grid || !container) return;
+
+                        svg.innerHTML = '';
+                        svg.style.width = grid.scrollWidth + 'px';
+                        svg.style.height = grid.scrollHeight + 'px';
+
+                        const cRect = container.getBoundingClientRect();
+                        const hechos = loadPlanDone();
+
+                        function linea(sourceBox, targetId, color, isDashed) {
+                                const targetBox = document.getElementById(`modal-course-${targetId}`);
+                                if (!targetBox) return;
+                                const sRect = sourceBox.getBoundingClientRect();
+                                const tRect = targetBox.getBoundingClientRect();
+                                const sx = sRect.left + sRect.width / 2 - cRect.left + container.scrollLeft;
+                                const sy = sRect.top + sRect.height / 2 - cRect.top + container.scrollTop;
+                                const tx = tRect.left + tRect.width / 2 - cRect.left + container.scrollLeft;
+                                const ty = tRect.top + tRect.height / 2 - cRect.top + container.scrollTop;
+
+                                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                                path.setAttribute('d', `M ${sx} ${sy} C ${(sx + tx) / 2} ${sy}, ${(sx + tx) / 2} ${ty}, ${tx} ${ty}`);
+                                path.setAttribute('stroke', color);
+                                path.setAttribute('stroke-width', '2');
+                                path.setAttribute('fill', 'none');
+                                path.setAttribute('opacity', '0.8');
+                                if (isDashed) path.setAttribute('stroke-dasharray', '5,5');
+                                svg.appendChild(path);
+                        }
+
+                        planData.forEach(curso => {
+                                if (!hechos.has(curso.id)) return;
+                                const sourceBox = document.getElementById(`modal-course-${curso.id}`);
+                                if (!sourceBox) return;
+                                (curso.requisitos || []).forEach(id => linea(sourceBox, id, 'var(--prereq-color)', false));
+                                (curso.corequisitos || []).forEach(id => linea(sourceBox, id, 'var(--coreq-color)', true));
+                                (curso.es_requisito_de || []).forEach(id => linea(sourceBox, id, 'var(--abre-color)', false));
                         });
                 }
 
