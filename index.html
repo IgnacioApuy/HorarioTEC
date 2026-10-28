@@ -807,6 +807,12 @@
                         line-height: 1.25;
                 }
 
+                .modal-course-box .meta {
+                        color: var(--text-muted);
+                        font-size: 10px;
+                        margin-top: 2px;
+                }
+
                 .modal-course-box .code {
                         color: var(--text-muted);
                         font-size: 10px;
@@ -2671,6 +2677,7 @@ mostrarMatricula();`;
                                         box.innerHTML = `
                     <div class="name">${curso.nombre}</div>
                     <div class="code" style="color: ${textColor}">(${curso.id})</div>
+                    ${(curso.creditos || curso.horas) ? `<div class="meta">${curso.creditos ? `Créd: ${curso.creditos}` : ''}${curso.creditos && curso.horas ? ' | ' : ''}${curso.horas ? `Horas: ${curso.horas}` : ''}</div>` : ''}
                 `;
 
                                         if (planDone.has(curso.id)) box.classList.add('done');
