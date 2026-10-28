@@ -821,6 +821,16 @@
                         z-index: 1;
                 }
 
+                .modal-course-box.done {
+                        background-color: #4b4b4b;
+                        color: #b5b5b5;
+                        border-color: #6a6a6a;
+                }
+
+                .modal-course-box.done .code {
+                        color: #9a9a9a !important;
+                }
+
                 .highlight-req {
                         border-color: var(--req-color) !important;
                         background: #3d2d0b;
@@ -1089,7 +1099,7 @@
                 </div>
                 <div class="modal-content">
                         <p>Exporta todo lo que esta página tiene guardado en tu navegador (plan de estudios, semestre,
-                                grupos seleccionados de las 4 variantes, sede, cupos, colores y carrera) a un archivo
+                                grupos seleccionados de las 4 variantes, sede, cupos, colores, carrera y cursos marcados en el plan) a un archivo
                                 CSV.</p>
                         <p>Importar un CSV <b>reemplaza</b> los datos guardados actualmente por los del archivo.</p>
                         <p><i>Nota: el CSV está pensado como copia de seguridad. Si lo abres y lo guardas de nuevo desde
@@ -1155,7 +1165,8 @@
                         'tec_sede',
                         'tec_cupo',
                         'tec_carrera_seleccionada',
-                        'tec_course_colors'
+                        'tec_course_colors',
+                        'tec_plan_done'
                 ];
                 const PROXY_URL = "https://soft-base-e57d.ignacioapuy.workers.dev?url=";
 
@@ -1271,6 +1282,25 @@
 
                 const colors = ['#1e3a8a', '#b91c1c', '#047857', '#b45309', '#6d28d9', '#be185d', '#0e7490', '#a16207', '#0f766e', '#4338ca'];
                 const COURSE_COLORS_STORAGE_KEY = 'tec_course_colors';
+                const PLAN_DONE_STORAGE_KEY = 'tec_plan_done';
+
+                function loadPlanDone() {
+                        try {
+                                const raw = localStorage.getItem(PLAN_DONE_STORAGE_KEY);
+                                const arr = raw ? JSON.parse(raw) : [];
+                                return new Set(Array.isArray(arr) ? arr : []);
+                        } catch (e) {
+                                return new Set();
+                        }
+                }
+
+                function savePlanDone(set) {
+                        try {
+                                localStorage.setItem(PLAN_DONE_STORAGE_KEY, JSON.stringify([...set]));
+                        } catch (e) {
+                                console.warn('Error saving plan marks', e);
+                        }
+                }
                 let colorMap = {};
 
                 function normalizeHexColor(color) {
@@ -2000,6 +2030,7 @@ mostrarMatricula();`;
                                 localStorage.removeItem('tec_cupo');
                                 localStorage.removeItem('tec_carrera_seleccionada');
                                 localStorage.removeItem(COURSE_COLORS_STORAGE_KEY);
+                                localStorage.removeItem(PLAN_DONE_STORAGE_KEY);
                         } catch (e) {
                                 console.warn('Error clearing localStorage keys', e);
                         }
@@ -2462,7 +2493,7 @@ mostrarMatricula();`;
 
                 // Devuelve el valor ya validado y limpio (string listo para guardar), o lanza un Error.
                 function validarEntradaImportada(clave, valor) {
-                        const esJSON = ['tec_plan', 'tec_oferta', 'tec_selections', VARIANTES_STORAGE_KEY, 'tec_course_colors'].includes(clave);
+                        const esJSON = ['tec_plan', 'tec_oferta', 'tec_selections', VARIANTES_STORAGE_KEY, 'tec_course_colors', 'tec_plan_done'].includes(clave);
                         if (!esJSON) {
                                 const texto = limpiarImportado(valor);
                                 if (clave === 'tec_sede') {
@@ -2495,6 +2526,8 @@ mostrarMatricula();`;
                                 if (!ok) throw new Error('estructura inválida');
                         } else if (clave === 'tec_course_colors') {
                                 if (!esObjeto(dato)) throw new Error('estructura inválida');
+                        } else if (clave === 'tec_plan_done') {
+                                if (!Array.isArray(dato) || !dato.every(id => typeof id === 'string')) throw new Error('estructura inválida');
                         }
                         return JSON.stringify(dato);
                 }
@@ -2614,6 +2647,7 @@ mostrarMatricula();`;
                         });
 
                         const clavesOrdenadas = Object.keys(grupos).map(Number).sort((a, b) => a - b);
+                        const planDone = loadPlanDone();
 
                         clavesOrdenadas.forEach(key => {
                                 const grupo = grupos[key];
@@ -2634,6 +2668,13 @@ mostrarMatricula();`;
                     <div class="name">${curso.nombre}</div>
                     <div class="code" style="color: ${textColor}">(${curso.id})</div>
                 `;
+
+                                        if (planDone.has(curso.id)) box.classList.add('done');
+                                        box.addEventListener('click', () => {
+                                                const done = box.classList.toggle('done');
+                                                if (done) planDone.add(curso.id); else planDone.delete(curso.id);
+                                                savePlanDone(planDone);
+                                        });
 
                                         box.addEventListener('mouseenter', () => mostrarConexiones(curso));
                                         box.addEventListener('mouseleave', quitarConexiones);
