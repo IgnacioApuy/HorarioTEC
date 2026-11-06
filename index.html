@@ -977,6 +977,7 @@
                         <div class="sede-selector">
                                 <label for="sede-selector">Sede</label>
                                 <select id="sede-selector">
+                                        <option value="TODAS">TODAS</option>
                                         <option value="CARTAGO">CARTAGO</option>
                                         <option value="SAN CARLOS">SAN CARLOS</option>
                                         <option value="LIMON">LIMON</option>
@@ -1270,7 +1271,7 @@
                 let variantes = { 1: [], 2: [], 3: [], 4: [] };
                 let varianteActual = 1;
                 let expandedCourses = new Set();
-                let sedeSeleccionada = 'CARTAGO';
+                let sedeSeleccionada = 'TODAS';
                 let mostrarSoloConCupo = false;
                 let misProfesoresData = [];
 
@@ -1651,7 +1652,14 @@ mostrarMatricula();`;
                 }
 
                 function obtenerSedeSeleccionada() {
-                        return document.getElementById('sede-selector')?.value || sedeSeleccionada || 'CARTAGO';
+                        return document.getElementById('sede-selector')?.value || sedeSeleccionada || 'TODAS';
+                }
+
+                // Un valor guardado (o importado) solo se acepta si sigue siendo una opción del selector.
+                function esSedeValida(valor) {
+                        const selector = document.getElementById('sede-selector');
+                        if (!selector || typeof valor !== 'string') return false;
+                        return Array.from(selector.options).some(o => o.value === valor);
                 }
 
                 function coincideConSede(sedeText) {
@@ -1854,7 +1862,8 @@ mostrarMatricula();`;
                         const selector = document.getElementById('sede-selector');
                         if (!selector) return;
 
-                        const savedSede = localStorage.getItem('tec_sede') || 'CARTAGO';
+                        const storedSede = localStorage.getItem('tec_sede');
+                        const savedSede = esSedeValida(storedSede) ? storedSede : 'TODAS';
                         sedeSeleccionada = savedSede;
                         selector.value = savedSede;
 
@@ -1989,7 +1998,7 @@ mostrarMatricula();`;
                                 }
                         }
                         selectedGroups = variantes[varianteActual];
-                        if (sedeGuardada) sedeSeleccionada = sedeGuardada;
+                        if (esSedeValida(sedeGuardada)) sedeSeleccionada = sedeGuardada;
                         if (cupoGuardado) mostrarSoloConCupo = cupoGuardado === 'SI';
                         if (carreraGuardada) {
                                 const sel = document.getElementById('carrera-select');
@@ -2055,8 +2064,8 @@ mostrarMatricula();`;
                         if (semestreInput) semestreInput.value = '';
 
                         const selector = document.getElementById('sede-selector');
-                        if (selector) selector.value = 'CARTAGO';
-                        sedeSeleccionada = 'CARTAGO';
+                        if (selector) selector.value = 'TODAS';
+                        sedeSeleccionada = 'TODAS';
                         mostrarSoloConCupo = false;
                         actualizarEtiquetaCupo();
 
@@ -2166,6 +2175,9 @@ mostrarMatricula();`;
                                         });
 
                                         const cuposLabel = obtenerCuposTexto(g.cupoText);
+                                        const sedeCorta = (g.sede || '').replace(/^(CAMPUS TECNOLOGICO (CENTRAL|LOCAL)|CENTRO ACADEMICO DE)\s+/i, '').replace(/[<>"&]/g, '');
+                                        const sedeLabel = (normalizarTexto(obtenerSedeSeleccionada()) === 'TODAS' && sedeCorta)
+                                                ? `<div style="font-size:10px; color:var(--text-muted); margin-bottom: 2px;">${sedeCorta}</div>` : '';
 
                                         let profHTML = `<div style="font-size:10px; color:var(--text-main); font-weight:bold; margin-bottom: 2px; display:flex; align-items:center;">
                                                 <span>${g.profesor}</span>`;
@@ -2191,6 +2203,7 @@ mostrarMatricula();`;
                         <div><b>Grupo ${g.grupo}</b> (${cuposLabel}) ${estadoBadge}</div>
                         <button style="padding: 2px 6px; font-size: 10px;">${isSelected ? '✕' : '+'}</button>
                     </div>
+                    ${sedeLabel}
                     ${profHTML}
                     <div style="font-size:10px; color:var(--text-muted);">${formatHours.join('<br>')}</div>
                 `;
