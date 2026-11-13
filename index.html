@@ -6,6 +6,13 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Horario TEC</title>
         <style>
+                @font-face {
+                        font-family: 'Minecraft';
+                        src: url('https://raw.githubusercontent.com/IgnacioApuy/HorarioTEC/main/Minecraft.ttf') format('truetype');
+                        font-weight: normal;
+                        font-style: normal;
+                }
+
                 :root {
                         --bg-color: #121212;
                         --surface-color: #1e1e1e;
@@ -27,7 +34,7 @@
                         box-sizing: border-box;
                         margin: 0;
                         padding: 0;
-                        font-family: sans-serif;
+                        font-family: 'Minecraft', sans-serif;
 
                 }
 
@@ -1109,7 +1116,8 @@
                 </div>
                 <div class="modal-content">
                         <p>Exporta todo lo que esta página tiene guardado en tu navegador (plan de estudios, semestre,
-                                grupos seleccionados de las 4 variantes, sede, cupos, colores, carrera y cursos marcados en el plan) a un archivo
+                                grupos seleccionados de las 4 variantes, sede, cupos, colores, carrera y cursos marcados
+                                en el plan) a un archivo
                                 CSV.</p>
                         <p>Importar un CSV <b>reemplaza</b> los datos guardados actualmente por los del archivo.</p>
                         <p><i>Nota: el CSV está pensado como copia de seguridad. Si lo abres y lo guardas de nuevo desde
