@@ -952,7 +952,7 @@
                         <div>
                                 <label id="semestre-label" for="semestre-file">Semestre:</label>
 
-                                <input type="file" id="semestre-file" accept=".html">
+                                <input type="file" id="semestre-file" accept=".html,.htm,.mht,.mhtml,text/html,multipart/related,message/rfc822,application/octet-stream">
                         </div>
                 </div>
 
@@ -1057,6 +1057,7 @@
                         <p>4. Haz click derecho en cualquier lado y selecciona "Guardar como...".</p>
                         <p>5. Descarga el archivo como Página Web Completa en formato .html</p>
                         <p>(Como referencia, el nombre suele ser: "Sistema de Matrícula del TEC.html")</p>
+                        <p>(En Android también funciona el botón "_↓_" ubicado en el menú de los 3 puntos arriba a la derecha (Chrome y Brave))</p>
                         <p>6. Carga el archivo en esta página en la sección de "Semestre" de arriba.</p>
                         <br>
                         <h3>Cómo Usar</h3>
@@ -1809,15 +1810,71 @@ mostrarMatricula();`;
                         saveData();
                 }
 
+                function normalizarArchivoSemestre(texto) {
+                        // Si es HTML normal, se devuelve tal cual.
+                        const inicio = texto.slice(0, 3000);
+                        const esMHTML = /^\s*(From|Subject|Date|MIME-Version|Content-Type)\s*:/im.test(inicio) &&
+                                /multipart\/related/i.test(inicio) && !/^\s*<(!doctype|html)/i.test(texto);
+                        if (!esMHTML) return texto;
+
+                        const finCab = texto.search(/\r?\n\r?\n/);
+                        const cabecera = texto.slice(0, finCab === -1 ? 3000 : finCab);
+                        const mb = cabecera.match(/boundary\s*=\s*"?([^";\r\n]+)"?/i);
+                        if (!mb) return texto;
+
+                        const partes = texto.split('--' + mb[1]);
+                        for (let i = 1; i < partes.length; i++) {
+                                const parte = partes[i];
+                                const corte = parte.search(/\r?\n\r?\n/);
+                                if (corte === -1) continue;
+                                const cab = parte.slice(0, corte).replace(/\r?\n[ \t]+/g, ' ');
+                                if (!/content-type\s*:\s*text\/html/i.test(cab)) continue;
+
+                                let cuerpo = parte.slice(corte).replace(/^\r?\n\r?\n/, '').replace(/(\r?\n)+$/, '');
+                                const cs = (cab.match(/charset\s*=\s*"?([\w-]+)"?/i) || [])[1] || 'utf-8';
+                                const enc = ((cab.match(/content-transfer-encoding\s*:\s*([\w-]+)/i) || [])[1] || '').toLowerCase();
+                                const aTexto = bytes => {
+                                        try { return new TextDecoder(cs).decode(bytes); }
+                                        catch (e) { return new TextDecoder('utf-8').decode(bytes); }
+                                };
+
+                                if (enc === 'quoted-printable') {
+                                        cuerpo = cuerpo.replace(/=\r?\n/g, '');
+                                        const bytes = [];
+                                        const utf8 = new TextEncoder();
+                                        for (let j = 0; j < cuerpo.length; j++) {
+                                                const c = cuerpo[j];
+                                                if (c === '=' && /^[0-9A-Fa-f]{2}$/.test(cuerpo.substr(j + 1, 2))) {
+                                                        bytes.push(parseInt(cuerpo.substr(j + 1, 2), 16));
+                                                        j += 2;
+                                                } else if (cuerpo.charCodeAt(j) < 128) {
+                                                        bytes.push(cuerpo.charCodeAt(j));
+                                                } else {
+                                                        bytes.push(...utf8.encode(c));
+                                                }
+                                        }
+                                        return aTexto(new Uint8Array(bytes));
+                                }
+                                if (enc === 'base64') {
+                                        const bin = atob(cuerpo.replace(/\s+/g, ''));
+                                        const bytes = new Uint8Array(bin.length);
+                                        for (let j = 0; j < bin.length; j++) bytes[j] = bin.charCodeAt(j);
+                                        return aTexto(bytes);
+                                }
+                                return cuerpo; // 7bit / 8bit / binary
+                        }
+                        return texto;
+                }
+
                 document.getElementById('semestre-file').addEventListener('change', function (e) {
                         const file = e.target.files[0];
                         if (!file) return;
                         const reader = new FileReader();
                         reader.onload = function (evt) {
-                                const doc = new DOMParser().parseFromString(evt.target.result, 'text/html');
+                                const doc = new DOMParser().parseFromString(normalizarArchivoSemestre(evt.target.result), 'text/html');
                                 const filasCursos = Array.from(doc.querySelectorAll('tr[id]:not(.Rowaccordion)')).filter(tr => {
                                         const img = tr.querySelector('.imgAccordion');
-                                        return img && img.src.includes('openlevel.png');
+                                        return img && (img.getAttribute('src') || '').includes('openlevel.png');
                                 });
 
                                 if (filasCursos.length === 0) {
